@@ -4,23 +4,23 @@ import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 
 const { Title } = Typography;
 
-// Define the ProductsEntity type here
+
 interface ProductsEntity {
   productName: string;
   quantity: number;
-  // Add other properties if needed
+
 }
 
 const FormPenjualan: React.FC = () => {
   const [form] = Form.useForm();
-  const [purchases, setPurchases] = useState<ProductsEntity[]>([]); // Specify the type
+  const [purchases, setPurchases] = useState<ProductsEntity[]>([]); 
   const [newPurchase, setNewPurchase] = useState<ProductsEntity>({
     productName: "",
     quantity: 0,
   });
 
   useEffect(() => {
-    // Load purchases from your data source or API
+    // API
   }, []);
 
   const handleAddPurchase = () => {

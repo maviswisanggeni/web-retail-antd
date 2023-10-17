@@ -18,7 +18,7 @@ const FormPembelian: React.FC = () => {
   });
 
   useEffect(() => {
-    // Load purchases from your data source or API
+    // API
   }, []);
 
   const handleAddPurchase = () => {
