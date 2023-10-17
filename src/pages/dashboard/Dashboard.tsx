@@ -6,7 +6,7 @@ import {
   PieChartOutlined,
   InboxOutlined,
 } from "@ant-design/icons";
-import { Layout, Menu, Button, theme } from "antd";
+import { Layout, Menu, Button, theme, MenuProps } from "antd";
 import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
 import "../../styles/dashboard.css";
 import FormPenjualan from "../penjualan/FormPenjualan";
@@ -15,6 +15,33 @@ import Gudang from "../gudang/Gudang";
 import Title from "antd/es/typography/Title";
 
 const { Header, Sider, Content } = Layout;
+
+type MenuItem = Required<MenuProps>["items"][number];
+
+function getItem(
+  label: React.ReactNode,
+  key: React.Key,
+  icon?: React.ReactNode,
+  children?: MenuItem[],
+): MenuItem {
+  return {
+    label,
+    key,
+    icon,
+    children,
+  } as MenuItem;
+}
+
+const items: MenuProps['items'] = [
+  getItem(<Link to="/">Dashboard</Link>, '1', <HomeOutlined />),
+  getItem('Penjualan', '2', <PieChartOutlined />, [
+    getItem(<Link to="/penjualan/post">Buat Penjualan</Link>, '2-1'),
+  ]),
+  getItem('Pembelian', '3', <PieChartOutlined />, [
+    getItem(<Link to="/pembelian/post">Buat Pembelian</Link>, '3-1'),
+  ]),
+  getItem(<Link to="/gudang">Gudang</Link>, '4', <InboxOutlined />),
+];
 
 const DashboardComponent: React.FC = () => (
   <div style={{ textAlign: "center" }}>
@@ -39,44 +66,10 @@ const Dashboard: React.FC = () => {
           >
             Web Retail Team 3
           </Header>
-          <Menu theme="dark" mode="inline" defaultSelectedKeys={["1"]}>
-            <Menu.Item
-              key="1"
-              icon={
-                <Link to="/">
-                  <HomeOutlined />
-                </Link>
-              }
-            >
-              Dashboard
-            </Menu.Item>
-            <Menu.SubMenu key="2" icon={<PieChartOutlined />} title="Penjualan">
-              <Menu.Item key="2-1" itemIcon={<Link
-                to="/penjualan/post"
-              >
-              </Link>}>
-                Buat Penjualan
-              </Menu.Item>
-            </Menu.SubMenu>
-            <Menu.SubMenu key="3" icon={<PieChartOutlined />} title="Pembelian">
-              <Menu.Item key="3-1" itemIcon={<Link
-                to="/pembelian/post"
-              >
-              </Link>}>
-                Buat Pembelian
-              </Menu.Item>
-            </Menu.SubMenu>
-            <Menu.Item
-              key="4"
-              icon={
-                <Link to="/gudang">
-                  <InboxOutlined />
-                </Link>
-              }
-            >
-              Gudang
-            </Menu.Item>
-          </Menu>
+          <Menu theme="dark" mode="inline" defaultSelectedKeys={["1"]}  
+            defaultOpenKeys={['1']}
+            items={items}
+          />
         </Sider>
         <Layout>
           <Header style={{ padding: 0, background: colorBgContainer }}>
