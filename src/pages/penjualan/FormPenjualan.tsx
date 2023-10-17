@@ -5,6 +5,7 @@ const FormPenjualan: React.FC = () => {
     return (
         <div style={{ textAlign: "center" }}>
             <Title>Form Penjualan</Title>
+
         </div>
     );
 };
