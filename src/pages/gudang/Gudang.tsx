@@ -1,12 +1,10 @@
-import Title from "antd/es/typography/Title";
 import React from "react";
+import Products from "../../components/Products";
 
 const Gudang: React.FC = () => {
-    return (
-        <div style={{ textAlign: "center" }}>
-            <Title>Gudang</Title>
-        </div>
-    );
+  return (
+    <Products />
+  );
 };
 
 export default Gudang;
