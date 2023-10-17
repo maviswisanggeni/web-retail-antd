@@ -22,7 +22,7 @@ function getItem(
   label: React.ReactNode,
   key: React.Key,
   icon?: React.ReactNode,
-  children?: MenuItem[],
+  children?: MenuItem[]
 ): MenuItem {
   return {
     label,
@@ -32,20 +32,36 @@ function getItem(
   } as MenuItem;
 }
 
-const items: MenuProps['items'] = [
-  getItem(<Link to="/">Dashboard</Link>, '1', <HomeOutlined />),
-  getItem('Penjualan', '2', <PieChartOutlined />, [
-    getItem(<Link to="/penjualan/post">Buat Penjualan</Link>, '2-1'),
+const items: MenuProps["items"] = [
+  getItem(<Link to="/">Dashboard</Link>, "1", <HomeOutlined />),
+  getItem("Penjualan", "2", <PieChartOutlined />, [
+    getItem(<Link to="/penjualan/post">Buat Penjualan</Link>, "2-1"),
   ]),
-  getItem('Pembelian', '3', <PieChartOutlined />, [
-    getItem(<Link to="/pembelian/post">Buat Pembelian</Link>, '3-1'),
+  getItem("Pembelian", "3", <PieChartOutlined />, [
+    getItem(<Link to="/pembelian/post">Buat Pembelian</Link>, "3-1"),
   ]),
-  getItem(<Link to="/gudang">Gudang</Link>, '4', <InboxOutlined />),
+  getItem("Gudang", "4", <InboxOutlined />, [
+    getItem(<Link to="/gudang">Data Produk</Link>, "4-1"),
+    getItem(<Link to="/gudang/masuk">Stok Masuk</Link>, "4-2"),
+    getItem(<Link to="/gudang/keluar">Stok Keluar</Link>, "4-3"),
+  ]),
 ];
 
 const DashboardComponent: React.FC = () => (
   <div style={{ textAlign: "center" }}>
     <Title>Dashboard</Title>
+  </div>
+);
+
+const StokMasukComponent: React.FC = () => (
+  <div style={{ textAlign: "center" }}>
+    <Title>Stok Masuk Produk</Title>
+  </div>
+);
+
+const StokKeluarComponent: React.FC = () => (
+  <div style={{ textAlign: "center" }}>
+    <Title>Stok Keluar Produk</Title>
   </div>
 );
 
@@ -66,8 +82,11 @@ const Dashboard: React.FC = () => {
           >
             Web Retail Team 3
           </Header>
-          <Menu theme="dark" mode="inline" defaultSelectedKeys={["1"]}  
-            defaultOpenKeys={['1']}
+          <Menu
+            theme="dark"
+            mode="inline"
+            defaultSelectedKeys={["1"]}
+            defaultOpenKeys={["1"]}
             items={items}
           />
         </Sider>
@@ -94,15 +113,11 @@ const Dashboard: React.FC = () => {
           >
             <Routes>
               <Route path="/" element={<DashboardComponent />} />
-              <Route
-                path="/penjualan/post"
-                element={<FormPenjualan />}
-              />
-              <Route
-                path="/pembelian/post"
-                element={<FormPembelian />}
-              />
+              <Route path="/penjualan/post" element={<FormPenjualan />} />
+              <Route path="/pembelian/post" element={<FormPembelian />} />
               <Route path="/gudang" element={<Gudang />} />
+              <Route path="/gudang/masuk" element={<StokMasukComponent />} />
+              <Route path="/gudang/keluar" element={<StokKeluarComponent />} />
             </Routes>
           </Content>
         </Layout>
