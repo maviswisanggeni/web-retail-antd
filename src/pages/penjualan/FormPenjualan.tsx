@@ -6,8 +6,10 @@ const { Title } = Typography;
 
 
 interface ProductsEntity {
+  sales: string;
   productName: string;
   quantity: number;
+  customer: string;
 
 }
 
@@ -15,8 +17,10 @@ const FormPenjualan: React.FC = () => {
   const [form] = Form.useForm();
   const [purchases, setPurchases] = useState<ProductsEntity[]>([]); 
   const [newPurchase, setNewPurchase] = useState<ProductsEntity>({
+    sales: "",
     productName: "",
     quantity: 0,
+    customer: "",
   });
 
   useEffect(() => {
@@ -25,7 +29,7 @@ const FormPenjualan: React.FC = () => {
 
   const handleAddPurchase = () => {
     setPurchases([...purchases, newPurchase]);
-    setNewPurchase({ productName: "", quantity: 0 });
+    setNewPurchase({ sales: "", productName: "", quantity: 0, customer: "", });
     form.resetFields();
   };
 
@@ -35,6 +39,11 @@ const FormPenjualan: React.FC = () => {
   };
 
   const columns = [
+    {
+        title: "Sales",
+        dataIndex: "sales",
+        key: "sales",
+      },
     {
       title: "Nama Produk",
       dataIndex: "productName",
@@ -46,12 +55,17 @@ const FormPenjualan: React.FC = () => {
       key: "quantity",
     },
     {
+        title: "Customer",
+        dataIndex: "customer",
+        key: "customer",
+      },
+    {
       title: "Actions",
       key: "actions",
       render: (text: any, record: ProductsEntity) => (
         <Space size="small">
           <Popconfirm
-            title="Are you sure to delete this purchase?"
+            title="Yakin Hapus Data?"
             onConfirm={() => handleDeletePurchase(record)}
             okText="Yes"
             cancelText="No"
@@ -67,17 +81,30 @@ const FormPenjualan: React.FC = () => {
     <div className="content">
       <Title>Penjualan</Title>
       <Form form={form} layout="inline">
+      <Form.Item label="Sales" name="sales">
+          <Input
+            value={newPurchase.productName}
+            onChange={(e) => setNewPurchase({ ...newPurchase, productName: e.target.value })}
+          />
+        </Form.Item>
         <Form.Item label="Nama Produk" name="productName">
           <Input
             value={newPurchase.productName}
             onChange={(e) => setNewPurchase({ ...newPurchase, productName: e.target.value })}
           />
         </Form.Item>
+
         <Form.Item label="Jumlah" name="quantity">
           <Input
             type="number"
             value={newPurchase.quantity}
             onChange={(e) => setNewPurchase({ ...newPurchase, quantity: parseInt(e.target.value) })}
+          />
+        </Form.Item>
+        <Form.Item label="Customer" name="customer">
+          <Input
+            value={newPurchase.productName}
+            onChange={(e) => setNewPurchase({ ...newPurchase, productName: e.target.value })}
           />
         </Form.Item>
         <Form.Item>
