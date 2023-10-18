@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Typography, Form, Input, Button, Table, Space, Popconfirm } from "antd";
-import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
+import { Typography, Form, Input, Button, Table, Space, Popconfirm, Modal } from "antd";
+import { PlusOutlined, EditOutlined, DeleteOutlined, InfoCircleOutlined } from "@ant-design/icons";
 
 const { Title } = Typography;
 
@@ -20,6 +20,10 @@ const FormPembelian: React.FC = () => {
     quantity: 0,
     customer: "",
   });
+  const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState<ProductsEntity | null>(null);
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [editRecord, setEditRecord] = useState<ProductsEntity | null>(null);
 
   useEffect(() => {
     // API
@@ -34,6 +38,16 @@ const FormPembelian: React.FC = () => {
   const handleDeletePurchase = (record: ProductsEntity) => {
     const updatedPurchases = purchases.filter((item) => item !== record);
     setPurchases(updatedPurchases);
+  };
+
+  const handleDetail = (record: ProductsEntity) => {
+    setSelectedRecord(record);
+    setIsDetailModalVisible(true);
+  };
+
+  const handleEdit = (record: ProductsEntity) => {
+    setEditRecord(record);
+    setIsEditModalVisible(true);
   };
 
   const columns = [
@@ -62,6 +76,20 @@ const FormPembelian: React.FC = () => {
       key: "actions",
       render: (text: any, record: ProductsEntity) => (
         <Space size="small">
+          <Button
+            type="link"
+            icon={<InfoCircleOutlined />}
+            onClick={() => handleDetail(record)}
+          >
+            Detail
+          </Button>
+          <Button
+            type="link"
+            icon={<EditOutlined />}
+            onClick={() => handleEdit(record)}
+          >
+            Edit
+          </Button>
           <Popconfirm
             title="Yakin Hapus Data?"
             onConfirm={() => handleDeletePurchase(record)}
@@ -111,6 +139,28 @@ const FormPembelian: React.FC = () => {
         </Form.Item>
       </Form>
       <Table columns={columns} dataSource={purchases} />
+      <Modal
+        title="Detail Pembelian"
+        visible={isDetailModalVisible}
+        onOk={() => setIsDetailModalVisible(false)}
+        onCancel={() => setIsDetailModalVisible(false)}
+      >
+        {selectedRecord && (
+          <div>
+            <p>Sales: {selectedRecord.sales}</p>
+            <p>Customer: {selectedRecord.customer}</p>
+            {/* Add more details here if needed */}
+          </div>
+        )}
+      </Modal>
+      <Modal
+        title="Edit Pembelian"
+        visible={isEditModalVisible}
+        onOk={() => setIsEditModalVisible(false)}
+        onCancel={() => setIsEditModalVisible(false)}
+      >
+        {/* Edit form for the selected record */}
+      </Modal>
     </div>
   );
 };
