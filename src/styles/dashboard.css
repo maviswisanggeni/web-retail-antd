@@ -12,6 +12,10 @@
     color: #fff;
 }
 
+.header-title {
+    padding-bottom: 30px;
+}
+
 .content {
     width: 100%;
     height: 100%;
