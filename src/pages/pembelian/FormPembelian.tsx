@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { Typography, Form, Input, Button, Table, Space, Popconfirm, Modal } from "antd";
+import { Typography, Form, Input, Button, Table, Space, Popconfirm, Modal, Select } from "antd";
 import { PlusOutlined, EditOutlined, DeleteOutlined, InfoCircleOutlined } from "@ant-design/icons";
+import axios from "axios";
 
 const { Title } = Typography;
+const { Option } = Select;
 
 interface ProductsEntity {
   sales: string;
   productName: string;
   quantity: number;
   customer: string;
+  cost: number;
 }
 
 const FormPembelian: React.FC = () => {
@@ -19,19 +22,35 @@ const FormPembelian: React.FC = () => {
     productName: "",
     quantity: 0,
     customer: "",
+    cost: 0,
   });
   const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<ProductsEntity | null>(null);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [editRecord, setEditRecord] = useState<ProductsEntity | null>(null);
+  const [salesData, setSalesData] = useState<string[]>([]);
 
   useEffect(() => {
-    // API
+    axios.get("your-api-url").then((response) => {
+      const fetchedSalesData = response.data;
+      setSalesData(fetchedSalesData);
+    });
+
+    const savedPurchases = JSON.parse(localStorage.getItem("purchases") || "[]");
+    setPurchases(savedPurchases);
   }, []);
 
+  useEffect(() => {
+    localStorage.setItem("purchases", JSON.stringify(purchases));
+  }, [purchases]);
+
   const handleAddPurchase = () => {
-    setPurchases([...purchases, newPurchase]);
-    setNewPurchase({ sales: "", productName: "", quantity: 0, customer: "" });
+
+    const cost = newPurchase.quantity * 100;
+    const purchaseWithCost = { ...newPurchase, cost };
+
+    setPurchases([...purchases, purchaseWithCost]);
+    setNewPurchase({ ...newPurchase, sales: "", cost: 0 });
     form.resetFields();
   };
 
@@ -48,6 +67,10 @@ const FormPembelian: React.FC = () => {
   const handleEdit = (record: ProductsEntity) => {
     setEditRecord(record);
     setIsEditModalVisible(true);
+  };
+
+  const getTotalCost = () => {
+    return purchases.reduce((total, purchase) => total + purchase.cost, 0);
   };
 
   const columns = [
@@ -70,6 +93,11 @@ const FormPembelian: React.FC = () => {
       title: "Customer",
       dataIndex: "customer",
       key: "customer",
+    },
+    {
+      title: "Total Biaya",
+      dataIndex: "cost",
+      key: "cost",
     },
     {
       title: "Actions",
@@ -105,13 +133,19 @@ const FormPembelian: React.FC = () => {
 
   return (
     <div className="content">
-      <Title>Pembelian</Title>
+      <Title>Transaksi Pembelian</Title>
       <Form form={form} layout="inline">
         <Form.Item label="Sales" name="sales">
-          <Input
+          <Select
             value={newPurchase.sales}
-            onChange={(e) => setNewPurchase({ ...newPurchase, sales: e.target.value })}
-          />
+            onChange={(value) => setNewPurchase({ ...newPurchase, sales: value })}
+          >
+            {salesData.map((sale, index) => (
+              <Option key={index} value={sale}>
+                {sale}
+              </Option>
+            ))}
+          </Select>
         </Form.Item>
         <Form.Item label="Nama Produk" name="productName">
           <Input
@@ -139,6 +173,9 @@ const FormPembelian: React.FC = () => {
         </Form.Item>
       </Form>
       <Table columns={columns} dataSource={purchases} />
+      <div>
+        <strong>Total Biaya: {getTotalCost()}</strong>
+      </div>
       <Modal
         title="Detail Pembelian"
         visible={isDetailModalVisible}
@@ -149,7 +186,6 @@ const FormPembelian: React.FC = () => {
           <div>
             <p>Sales: {selectedRecord.sales}</p>
             <p>Customer: {selectedRecord.customer}</p>
-            {/* Add more details here if needed */}
           </div>
         )}
       </Modal>

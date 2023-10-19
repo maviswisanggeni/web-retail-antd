@@ -91,7 +91,7 @@ const FormPenjualan: React.FC = () => {
 
   return (
     <div className="content">
-      <Title>Penjualan</Title>
+      <Title>Transaksi Penjualan</Title>
       <Form form={form} layout="inline">
         <Form.Item label="Sales" name="sales">
           <Input
