@@ -6,7 +6,6 @@ interface DataStockInType {
   title: string;
   stock: number;
   rating: number;
-  suplier: string;
 }
 
 interface DetailProductStockInProps {
@@ -18,19 +17,19 @@ const DetailProductStockIn: React.FC<DetailProductStockInProps> = ({ product, on
   const items: DescriptionsProps['items'] = [
     {
       label: 'Nama Barang',
-      span: 3,
+      span: 1,
       key: 'title',
       children: product?.title?.toString() ?? ''
     },
     {
       label: 'Jumlah Stok',
-      span: 3,
+      span: 1,
       key: 'stock',
       children: product?.stock?.toString() ?? '',
     },
     {
       label: 'Tanggal Masuk',
-      span: 3,
+      span: 2,
       key: 'rating',
       children: new Date(product?.rating.toFixed() ?? 0).toLocaleDateString("id-ID", {
         weekday: "long",
@@ -41,10 +40,13 @@ const DetailProductStockIn: React.FC<DetailProductStockInProps> = ({ product, on
     },
     {
       label: 'Pemasok Produk',
-      span: 3,
+      span: 2,
       key: 'suplier',
       children: [
-        product?.suplier?.toString() ?? 'Pemasok 1',        
+        'Pemasok 1',
+        'Pemasok 2',
+        'Pemasok 3',
+      ][Math.floor(Math.random() * 3)        
       ],
     }
   ];
@@ -52,6 +54,7 @@ const DetailProductStockIn: React.FC<DetailProductStockInProps> = ({ product, on
   return (
     <Modal
       title="Detail Produk Stok Masuk"
+      width={720}
       open={product !== null}
       footer={null}
       onCancel={onClose}
