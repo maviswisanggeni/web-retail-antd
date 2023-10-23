@@ -12,7 +12,13 @@
     color: #fff;
 }
 
+.header-title {
+    padding-bottom: 30px;
+}
+
 .content {
+    position: relative;
+    overflow-x: hidden;
     width: 100%;
     height: 100%;
     display: flex;

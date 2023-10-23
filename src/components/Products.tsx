@@ -3,12 +3,21 @@ import React, { useState, useEffect } from "react";
 import { ProductsEntity } from "../models/IProducts";
 import { ProductsService } from "../services/ProductsService";
 import type { ColumnsType } from "antd/es/table";
-import { Button, Space, Table } from 'antd';
+import { Button, Space, Table, Modal, Tooltip, Input } from "antd";
+import {
+  DeleteOutlined,
+  EditOutlined,
+  ExclamationCircleFilled,
+  SearchOutlined,
+} from "@ant-design/icons";
+import EditProduct from "./EditProduct";
 
 interface IState {
   loading: boolean;
   products: ProductsEntity[];
   errorMsg: string;
+  deleteResponse: string | null;
+  searchText: string;
 }
 
 interface DataType {
@@ -16,45 +25,188 @@ interface DataType {
   id: number;
   title: string;
   price: number;
+  brand: string;
   stock: number;
   category: string;
 }
+
+const { Search } = Input;
 
 const Products: React.FC = () => {
   const [state, setState] = useState<IState>({
     loading: false,
     products: [] as ProductsEntity[],
     errorMsg: "",
+    deleteResponse: null,
+    searchText: "",
   });
+
+  const [editProductVisible, setEditProductVisible] = useState(false);
+  const [selectedProductId, setSelectedProductId] = useState<number | null>(
+    null
+  );
+
+  const { confirm } = Modal;
+
+  const handleSearch = (selectedKeys: string[], confirm: () => void) => {
+    confirm();
+    // Set searchText state to the selected keyword
+    setState({ ...state, searchText: selectedKeys[0] });
+  };
+
+  const handleReset = (clearFilters: () => void) => {
+    clearFilters();
+    // Reset searchText state to an empty string
+    setState({ ...state, searchText: "" });
+  };
+
+  const showDeleteConfirm = (id: number) => {
+    confirm({
+      title: "Are you sure to delete this product?",
+      icon: <ExclamationCircleFilled />,
+      content: "This action cannot be undone.",
+      okText: "Yes",
+      okType: "danger",
+      cancelText: "No",
+      onOk() {
+        console.log("OK");
+        ProductsService.deleteProduct(id)
+          .then((res) => {
+            setState({
+              ...state,
+              deleteResponse: JSON.stringify(res.data, null, 2),
+            });
+          })
+          .catch((err) => {
+            setState({
+              ...state,
+              deleteResponse: `Failed to delete product with ID ${id}: ${err.message}`,
+            });
+          });
+      },
+      onCancel() {
+        console.log("Cancel");
+      },
+    });
+  };
+
+  const handleEditProduct = (
+    productId: number,
+    updatedProductData: Partial<ProductsEntity>
+  ): void => {
+    const updatedProducts = state.products.map((product) =>
+      product.id === productId ? { ...product, ...updatedProductData } : product
+    );
+
+    setState({ ...state, products: updatedProducts });
+  };
 
   const columns: ColumnsType<DataType> = [
     {
-      title: "Product Id",
+      title: "No",
       width: 50,
       dataIndex: "id",
       key: "id",
       fixed: "left",
     },
     {
-      title: "Title",
+      title: "Nama Barang",
       width: 150,
       dataIndex: "title",
       key: "title",
+      filters: [
+        {
+          text: "Cari Nama Barang",
+          value: "Cari Nama Barang",
+        },
+      ],
+      onFilter: (_value, record) => {
+        return record.title
+          .toLowerCase()
+          .includes(state.searchText.toLowerCase());
+      },
+      filterDropdown: ({
+        setSelectedKeys,
+        selectedKeys,
+        confirm,
+        clearFilters,
+      }) => (
+        <div style={{ padding: 8 }}>
+          <Search
+            placeholder="Cari Nama Barang"
+            value={selectedKeys[0]}
+            onChange={(e) =>
+              setSelectedKeys(e.target.value ? [e.target.value] : [])
+            }
+            onPressEnter={() =>
+              handleSearch(
+                selectedKeys.map((key) => key.toString()),
+                confirm
+              )
+            }
+            style={{ width: 188, marginBottom: 8, display: "block" }}
+          />
+          <Space>
+            <Button
+              type="primary"
+              onClick={() =>
+                handleSearch(
+                  selectedKeys.map((key) => key.toString()),
+                  confirm
+                )
+              }
+              icon={<SearchOutlined />}
+              size="small"
+              style={{ width: 90 }}
+            >
+              Cari
+            </Button>
+            <Button
+              onClick={() => handleReset(clearFilters || (() => {}))}
+              size="small"
+              style={{ width: 90 }}
+            >
+              Reset
+            </Button>
+          </Space>
+        </div>
+      ),
+      render: (text) => (
+        <div
+          style={{
+            backgroundColor:
+              state.searchText &&
+              text.toLowerCase().includes(state.searchText.toLowerCase())
+                ? "#5272F239"
+                : "transparent",
+          }}
+        >
+          {text}
+        </div>
+      ),
     },
     {
-      title: "Price",
-      width: 50,
+      title: "Harga Jual",
+      width: 100,
       dataIndex: "price",
       key: "price",
+      sorter: (a, b) => a.price - b.price,
+      render: (price: number) => `$${price}`,
     },
     {
-      title: "Stock",
+      title: "Stok",
       width: 50,
       dataIndex: "stock",
       key: "stock",
     },
     {
-      title: "Category",
+      title: "Satuan",
+      width: 150,
+      dataIndex: "brand",
+      key: "brand",
+    },
+    {
+      title: "Kategori",
       width: 150,
       dataIndex: "category",
       key: "category",
@@ -64,12 +216,27 @@ const Products: React.FC = () => {
       key: "operation",
       fixed: "right",
       width: 150,
-      render: () => (
+      render: (record) => (
         <>
           <Space>
-            <Button type="primary">Edit</Button>
-            <Button type="default">Detail</Button>
-            <Button danger>Delete</Button>
+            <Tooltip title="Edit">
+              <Button
+                type="text"
+                icon={<EditOutlined />}
+                onClick={() => {
+                  setSelectedProductId(record.id); // Set the selected product ID
+                  setEditProductVisible(true);
+                }}
+              />
+            </Tooltip>
+            <Tooltip title="Delete">
+              <Button
+                danger
+                type="text"
+                icon={<DeleteOutlined />}
+                onClick={() => showDeleteConfirm(record.id)}
+              />
+            </Tooltip>
           </Space>
         </>
       ),
@@ -78,7 +245,7 @@ const Products: React.FC = () => {
 
   const data: DataType[] = [];
 
-  // network request
+  // Network request
   useEffect(() => {
     setState({ ...state, loading: true });
     ProductsService.getAllProducts()
@@ -107,6 +274,7 @@ const Products: React.FC = () => {
       title: products[i].title,
       price: products[i].price,
       stock: products[i].stock,
+      brand: products[i].brand,
       category: products[i].category,
     });
   }
@@ -114,13 +282,35 @@ const Products: React.FC = () => {
   return (
     <>
       <div className="content">
-        <Title>Data Products From APIs</Title>
+        <Title level={2} className="header-title">
+          Data Produk
+        </Title>
         {loading && <p>Loading...</p>}
         {errorMsg && <p>Failed fetch data : {errorMsg}</p>}
         <Table
           columns={columns}
           dataSource={data}
-          scroll={{ x: 1000, y: 300 }}
+          scroll={{ x: 1000, y: 400 }}
+        />
+
+        {state.deleteResponse && (
+          <Modal
+            title="Sukses Menghapus Produk"
+            visible={state.deleteResponse !== null} // true
+            footer={null}
+            onCancel={() => setState({ ...state, deleteResponse: null })}
+          >
+            <pre>{state.deleteResponse}</pre>
+          </Modal>
+        )}
+
+        <EditProduct
+          visible={editProductVisible}
+          onClose={() => setEditProductVisible(false)}
+          productId={selectedProductId} // Pass the selected product ID
+          onSave={(productId, updatedProduct) =>
+            handleEditProduct(productId, updatedProduct)
+          }
         />
       </div>
     </>

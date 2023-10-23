@@ -1,0 +1,17 @@
+.form-stock-in {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: fit-content;
+    margin-bottom: 50px;
+    padding-right: 20px;
+}
+
+.form-in {
+    background-color: antiquewhite;
+    border-radius: 10px;
+}
+
+.tbl-stock-in {
+    margin-top: 20px;
+}
