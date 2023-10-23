@@ -1,61 +1,127 @@
 import React, { useState, useEffect } from "react";
-import { Typography, Form, Input, Button, Table, Space, Popconfirm, Modal } from "antd";
-import { PlusOutlined, DeleteOutlined, InfoCircleOutlined } from "@ant-design/icons";
+import { Typography, Form, Input, Button, Table, Space, Popconfirm, Modal, Select } from "antd";
+import { PlusOutlined, EditOutlined, DeleteOutlined, InfoCircleOutlined } from "@ant-design/icons";
+import axios from "axios";
+import XLSX from "xlsx";
 
 const { Title } = Typography;
+const { Option } = Select;
 
-interface ProductsEntity {
-  sales: string;
+interface SalesEntity {
+  salesPerson: string;
   productName: string;
   quantity: number;
   customer: string;
+  revenue: number;
 }
 
 const FormPenjualan: React.FC = () => {
   const [form] = Form.useForm();
-  const [purchases, setPurchases] = useState<ProductsEntity[]>([]);
-  const [newPurchase, setNewPurchase] = useState<ProductsEntity>({
-    sales: "",
+  const [sales, setSales] = useState<SalesEntity[]>([]);
+  const [newSale, setNewSale] = useState<SalesEntity>({
+    salesPerson: "",
     productName: "",
     quantity: 0,
     customer: "",
+    revenue: 0,
   });
   const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
-  const [selectedRecord, setSelectedRecord] = useState<ProductsEntity | null>(null);
+  const [selectedRecord, setSelectedRecord] = useState<SalesEntity | null>(null);
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [editRecord, setEditRecord] = useState<SalesEntity | null>(null);
+  const [emptyDataWarning, setEmptyDataWarning] = useState(false);
 
   useEffect(() => {
-    // API
+
+    axios.get("your-api-url-for-sales").then((response) => {
+      const fetchedSalesData = response.data;
+      setSales(fetchedSalesData);
+    });
+
+  
+    const savedSales = JSON.parse(localStorage.getItem("sales") || "[]");
+    setSales(savedSales);
   }, []);
 
-  const handleAddPurchase = () => {
-    setPurchases([...purchases, newPurchase]);
-    setNewPurchase({ sales: "", productName: "", quantity: 0, customer: "" });
+  useEffect(() => {
+
+    localStorage.setItem("sales", JSON.stringify(sales));
+  }, [sales]);
+
+  const handleAddSale = () => {
+    if (!newSale.salesPerson || !newSale.productName || newSale.quantity <= 0) {
+      setEmptyDataWarning(true);
+      return;
+    }
+
+    const revenue = newSale.quantity * 100;
+    const saleWithRevenue = { ...newSale, revenue };
+
+    setSales([...sales, saleWithRevenue]);
+
+    setNewSale({
+      salesPerson: "",
+      productName: "",
+      quantity: 0,
+      customer: "",
+      revenue: 0,
+    });
+
     form.resetFields();
+    setEmptyDataWarning(false);
   };
 
-  const handleDeletePurchase = (record: ProductsEntity) => {
-    const updatedPurchases = purchases.filter((item) => item !== record);
-    setPurchases(updatedPurchases);
+  const handleEditSale = () => {
+    if (!editRecord) {
+      return;
+    }
+
+    setIsEditModalVisible(false);
   };
 
-  const handleDetail = (record: ProductsEntity) => {
+  const handleDeleteSale = () => {
+    if (!editRecord) {
+      return;
+    }
+
+    setIsEditModalVisible(false);
+  };
+
+  const handleDetail = (record: SalesEntity) => {
     setSelectedRecord(record);
     setIsDetailModalVisible(true);
   };
 
+  const handleEdit = (record: SalesEntity) => {
+    setEditRecord(record);
+    setIsEditModalVisible(true);
+  };
+
+  const getTotalRevenue = () => {
+    return sales.reduce((total, sale) => total + sale.revenue, 0);
+  };
+
+  const exportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(sales);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Sales");
+
+    XLSX.writeFile(workbook, "sales.xlsx");
+  };
+
   const columns = [
     {
-      title: "Sales",
-      dataIndex: "sales",
-      key: "sales",
+      title: "Sales Person",
+      dataIndex: "salesPerson",
+      key: "salesPerson",
     },
     {
-      title: "Nama Produk",
+      title: "Product Name",
       dataIndex: "productName",
       key: "productName",
     },
     {
-      title: "Jumlah",
+      title: "Quantity",
       dataIndex: "quantity",
       key: "quantity",
     },
@@ -65,9 +131,14 @@ const FormPenjualan: React.FC = () => {
       key: "customer",
     },
     {
+      title: "Revenue",
+      dataIndex: "revenue",
+      key: "revenue",
+    },
+    {
       title: "Actions",
       key: "actions",
-      render: (text: any, record: ProductsEntity) => (
+      render: (text: any, record: SalesEntity) => (
         <Space size="small">
           <Button
             type="link"
@@ -76,13 +147,20 @@ const FormPenjualan: React.FC = () => {
           >
             Detail
           </Button>
+          <Button
+            type="link"
+            icon={<EditOutlined />}
+            onClick={() => handleEdit(record)}
+          >
+            Edit
+          </Button>
           <Popconfirm
-            title="Yakin Hapus Data?"
-            onConfirm={() => handleDeletePurchase(record)}
+            title="Are you sure to delete this data?"
+            onConfirm={() => handleDeleteSale()}
             okText="Yes"
             cancelText="No"
           >
-            <Button type="link" icon={<DeleteOutlined/>} />
+            <Button type="default" icon={<DeleteOutlined />} />
           </Popconfirm>
         </Space>
       ),
@@ -92,52 +170,73 @@ const FormPenjualan: React.FC = () => {
   return (
     <div className="content">
       <Title>Transaksi Penjualan</Title>
+
       <Form form={form} layout="inline">
-        <Form.Item label="Sales" name="sales">
+        <Form.Item label="Sales Person" name="salesPerson">
           <Input
-            value={newPurchase.sales}
-            onChange={(e) => setNewPurchase({ ...newPurchase, sales: e.target.value })}
+            value={newSale.salesPerson}
+            onChange={(e) => setNewSale({ ...newSale, salesPerson: e.target.value })}
           />
         </Form.Item>
-        <Form.Item label="Nama Produk" name="productName">
+        <Form.Item label="Product Name" name="productName">
           <Input
-            value={newPurchase.productName}
-            onChange={(e) => setNewPurchase({ ...newPurchase, productName: e.target.value })}
+            value={newSale.productName}
+            onChange={(e) => setNewSale({ ...newSale, productName: e.target.value })}
           />
         </Form.Item>
-        <Form.Item label="Jumlah" name="quantity">
+        <Form.Item label="Quantity" name="quantity">
           <Input
             type="number"
-            value={newPurchase.quantity}
-            onChange={(e) => setNewPurchase({ ...newPurchase, quantity: parseInt(e.target.value) })}
+            value={newSale.quantity}
+            onChange={(e) =>
+              setNewSale({ ...newSale, quantity: parseInt(e.target.value) || 0 })
+            }
           />
         </Form.Item>
         <Form.Item label="Customer" name="customer">
           <Input
-            value={newPurchase.customer}
-            onChange={(e) => setNewPurchase({ ...newPurchase, customer: e.target.value })}
+            value={newSale.customer}
+            onChange={(e) => setNewSale({ ...newSale, customer: e.target.value })}
           />
         </Form.Item>
         <Form.Item>
-          <Button type="primary" icon={<PlusOutlined />} onClick={handleAddPurchase}>
-            Tambah Penjualan
+          <Button type="primary" onClick={handleAddSale}>
+            + Add Data
           </Button>
+          {emptyDataWarning && (
+            <span style={{ color: "red", marginLeft: 10 }}>Data kosong</span>
+          )}
         </Form.Item>
       </Form>
-      <Table columns={columns} dataSource={purchases} />
+
+      <Button type="primary" onClick={exportToExcel} style={{ margin: "5px", background: "#008000", border: "none" }}>
+  Export to Excel
+</Button>
+
+      <Table columns={columns} dataSource={sales} style={{ margin: "8px" }} />
+      <div>
+        <strong>Total Revenue: {getTotalRevenue()}</strong>
+      </div>
+
       <Modal
         title="Detail Penjualan"
         visible={isDetailModalVisible}
         onOk={() => setIsDetailModalVisible(false)}
         onCancel={() => setIsDetailModalVisible(false)}
       >
-        {selectedRecord && (
-          <div>
-            <p>Sales: {selectedRecord.sales}</p>
-            <p>Customer: {selectedRecord.customer}</p>
-            {/* Add more details here if needed */}
-          </div>
-        )}
+        {/* ... (modal content) */}
+      </Modal>
+
+      <Modal
+        title="Edit Penjualan"
+        visible={isEditModalVisible}
+        onOk={handleEditSale}
+        onCancel={() => setIsEditModalVisible(false)}
+      >
+        {/* ... (edit modal content) */}
+        <Button type="default" onClick={handleDeleteSale}>
+          Delete
+        </Button>
       </Modal>
     </div>
   );
