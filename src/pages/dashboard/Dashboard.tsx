@@ -13,6 +13,8 @@ import FormPenjualan from "../penjualan/FormPenjualan";
 import FormPembelian from "../pembelian/FormPembelian";
 import Gudang from "../gudang/Gudang";
 import Title from "antd/es/typography/Title";
+import StockIn from "../gudang/StockIn";
+import StockOut from "../gudang/StockOut";
 
 const { Header, Sider, Content } = Layout;
 
@@ -50,18 +52,6 @@ const items: MenuProps["items"] = [
 const DashboardComponent: React.FC = () => (
   <div style={{ textAlign: "center" }}>
     <Title>Dashboard</Title>
-  </div>
-);
-
-const StokMasukComponent: React.FC = () => (
-  <div style={{ textAlign: "center" }}>
-    <Title>Stok Masuk Produk</Title>
-  </div>
-);
-
-const StokKeluarComponent: React.FC = () => (
-  <div style={{ textAlign: "center" }}>
-    <Title>Stok Keluar Produk</Title>
   </div>
 );
 
@@ -116,8 +106,8 @@ const Dashboard: React.FC = () => {
               <Route path="/penjualan/post" element={<FormPenjualan />} />
               <Route path="/pembelian/post" element={<FormPembelian />} />
               <Route path="/gudang" element={<Gudang />} />
-              <Route path="/gudang/masuk" element={<StokMasukComponent />} />
-              <Route path="/gudang/keluar" element={<StokKeluarComponent />} />
+              <Route path="/gudang/masuk" element={<StockIn />} />
+              <Route path="/gudang/keluar" element={<StockOut />} />
             </Routes>
           </Content>
         </Layout>
