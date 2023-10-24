@@ -3,6 +3,7 @@ import { Typography, Form, Input, Button, Table, Space, Popconfirm, Modal, Selec
 import { PlusOutlined, EditOutlined, DeleteOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import axios from "axios";
 import XLSX from "xlsx";
+import Products from "../../components/Products";
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -179,19 +180,12 @@ const FormPembelian: React.FC = () => {
           />
         </Form.Item>
         <Form.Item label="Nama Produk" name="productName">
-          <Select
-            value={newPurchase.productName}
-            onChange={(value) => {
-              setNewPurchase({ ...newPurchase, productName: value });
-            }}
-          >
-            {salesData.map((product, index) => (
-              <Option value={product} key={index}>
-                {product}
-              </Option>
-            ))}
-          </Select>
-        </Form.Item>
+  <Input
+    value={newPurchase.productName}
+    onChange={(e) => setNewPurchase({ ...newPurchase, productName: e.target.value })}
+  />
+</Form.Item>
+
         <Form.Item label="Jumlah" name="quantity">
           <Input
             type="number"
@@ -208,7 +202,7 @@ const FormPembelian: React.FC = () => {
           />
         </Form.Item>
         <Form.Item>
-          <Button type="primary" onClick={handleAddPurchase}>
+          <Button type="primary" onClick={handleAddPurchase}style={{margin:10}}>
             Tambah Data
           </Button>
           {emptyDataWarning && (
@@ -218,7 +212,7 @@ const FormPembelian: React.FC = () => {
       </Form>
 
       <Button type="primary" onClick={exportToExcel} style={{ margin: "5px", background: "#008000", border: "none" }}>
-        Export Excel
+        Export to Excel
       </Button>
 
       <Table columns={columns} dataSource={purchases} style={{ margin: "8px" }} />

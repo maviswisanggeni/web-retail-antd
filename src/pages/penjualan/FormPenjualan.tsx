@@ -73,7 +73,6 @@ const FormPenjualan: React.FC = () => {
     if (!editRecord) {
       return;
     }
-    
 
     setIsEditModalVisible(false);
   };
@@ -157,7 +156,7 @@ const FormPenjualan: React.FC = () => {
           </Button>
           <Popconfirm
             title="Yakin Hapus Data?"
-            onConfirm={() => handleDeleteSale(record)}
+            onConfirm={() => handleDeleteSale()}
             okText="Ya"
             cancelText="Tidak"
           >
@@ -180,19 +179,11 @@ const FormPenjualan: React.FC = () => {
           />
         </Form.Item>
         <Form.Item label="Nama Produk" name="productName">
-          <Select
-            value={newSale.productName}
-            onChange={(value) => {
-              setNewSale({ ...newSale, productName: value });
-            }}
-          >
-            {productsData.map((product, index) => (
-              <Option value={product} key={index}>
-                {product}
-              </Option>
-            ))}
-          </Select>
-        </Form.Item>
+  <Input
+    value={newSale.productName}
+    onChange={(e) => setNewSale({ ...newSale, productName: e.target.value })}
+  />
+</Form.Item>
         <Form.Item label="Jumlah" name="quantity">
           <Input
             type="number"
@@ -209,7 +200,7 @@ const FormPenjualan: React.FC = () => {
           />
         </Form.Item>
         <Form.Item>
-          <Button type="primary" onClick={handleAddSale}>
+          <Button type="primary" onClick={handleAddSale}style={{margin:10}}>
             Tambah Data
           </Button>
           {emptyDataWarning && (
@@ -243,7 +234,7 @@ const FormPenjualan: React.FC = () => {
         onCancel={() => setIsEditModalVisible(false)}
       >
         {}
-        <Button type="default" onClick={() => handleDeleteSale(editRecord)}>
+        <Button type="default" onClick={() => handleDeleteSale()}>
           Hapus
         </Button>
       </Modal>
