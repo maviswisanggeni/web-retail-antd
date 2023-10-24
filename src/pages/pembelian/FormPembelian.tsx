@@ -208,7 +208,7 @@ const FormPembelian: React.FC = () => {
           />
         </Form.Item>
         <Form.Item>
-          <Button type="primary" onClick={handleAddPurchase} style={{ margin: 10 }}>
+          <Button type="primary" onClick={handleAddPurchase} >
             + Add Data
           </Button>
           {emptyDataWarning && (
