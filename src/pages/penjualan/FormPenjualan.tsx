@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Typography, Form, Input, Button, Table, Space, Popconfirm, Modal, Select } from "antd";
+import { Typography, Form, Input, Button, Table, Space, Popconfirm, Modal } from "antd";
 import { PlusOutlined, EditOutlined, DeleteOutlined, InfoCircleOutlined } from "@ant-design/icons";
-import axios from "axios";
 import XLSX from "xlsx";
 
 const { Title } = Typography;
-const { Option } = Select;
 
 interface SalesEntity {
   salesPerson: string;
@@ -33,18 +31,11 @@ const FormPenjualan: React.FC = () => {
 
   useEffect(() => {
 
-    axios.get("your-api-url-for-sales").then((response) => {
-      const fetchedSalesData = response.data;
-      setSales(fetchedSalesData);
-    });
-
-  
     const savedSales = JSON.parse(localStorage.getItem("sales") || "[]");
     setSales(savedSales);
   }, []);
 
   useEffect(() => {
-
     localStorage.setItem("sales", JSON.stringify(sales));
   }, [sales]);
 
@@ -84,17 +75,9 @@ const FormPenjualan: React.FC = () => {
       return;
     }
 
+    const updatedSales = sales.filter((item) => item !== editRecord);
+    setSales(updatedSales);
     setIsEditModalVisible(false);
-  };
-
-  const handleDetail = (record: SalesEntity) => {
-    setSelectedRecord(record);
-    setIsDetailModalVisible(true);
-  };
-
-  const handleEdit = (record: SalesEntity) => {
-    setEditRecord(record);
-    setIsEditModalVisible(true);
   };
 
   const getTotalRevenue = () => {
@@ -156,7 +139,7 @@ const FormPenjualan: React.FC = () => {
           </Button>
           <Popconfirm
             title="Are you sure to delete this data?"
-            onConfirm={() => handleDeleteSale()}
+            onConfirm={handleDeleteSale}
             okText="Yes"
             cancelText="No"
           >
@@ -166,6 +149,16 @@ const FormPenjualan: React.FC = () => {
       ),
     },
   ];
+
+  const handleDetail = (record: SalesEntity) => {
+    setSelectedRecord(record);
+    setIsDetailModalVisible(true);
+  };
+
+  const handleEdit = (record: SalesEntity) => {
+    setEditRecord(record);
+    setIsEditModalVisible(true);
+  };
 
   return (
     <div className="content">
@@ -200,7 +193,7 @@ const FormPenjualan: React.FC = () => {
           />
         </Form.Item>
         <Form.Item>
-          <Button type="primary" onClick={handleAddSale}>
+          <Button type="primary" onClick={handleAddSale}style={{margin: 10 }}>
             + Add Data
           </Button>
           {emptyDataWarning && (
@@ -210,8 +203,8 @@ const FormPenjualan: React.FC = () => {
       </Form>
 
       <Button type="primary" onClick={exportToExcel} style={{ margin: "5px", background: "#008000", border: "none" }}>
-  Export to Excel
-</Button>
+        Export to Excel
+      </Button>
 
       <Table columns={columns} dataSource={sales} style={{ margin: "8px" }} />
       <div>

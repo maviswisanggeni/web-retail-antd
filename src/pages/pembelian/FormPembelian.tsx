@@ -82,6 +82,8 @@ const FormPembelian: React.FC = () => {
       return;
     }
 
+    const updatedPurchases = purchases.filter((item) => item !== editRecord);
+    setPurchases(updatedPurchases);
     setIsEditModalVisible(false);
   };
 
@@ -177,10 +179,18 @@ const FormPembelian: React.FC = () => {
           />
         </Form.Item>
         <Form.Item label="Nama Produk" name="productName">
-          <Input
+          <Select
             value={newPurchase.productName}
-            onChange={(e) => setNewPurchase({ ...newPurchase, productName: e.target.value })}
-          />
+            onChange={(value) => {
+              setNewPurchase({ ...newPurchase, productName: value });
+            }}
+          >
+            {salesData.map((product, index) => (
+              <Option value={product} key={index}>
+                {product}
+              </Option>
+            ))}
+          </Select>
         </Form.Item>
         <Form.Item label="Jumlah" name="quantity">
           <Input
@@ -198,7 +208,7 @@ const FormPembelian: React.FC = () => {
           />
         </Form.Item>
         <Form.Item>
-          <Button type="primary" onClick={handleAddPurchase}>
+          <Button type="primary" onClick={handleAddPurchase} style={{ margin: 10 }}>
             + Add Data
           </Button>
           {emptyDataWarning && (
@@ -208,8 +218,8 @@ const FormPembelian: React.FC = () => {
       </Form>
 
       <Button type="primary" onClick={exportToExcel} style={{ margin: "5px", background: "#008000", border: "none" }}>
-  Export to Excel
-</Button>
+        Export to Excel
+      </Button>
 
       <Table columns={columns} dataSource={purchases} style={{ margin: "8px" }} />
       <div>
@@ -222,7 +232,7 @@ const FormPembelian: React.FC = () => {
         onOk={() => setIsDetailModalVisible(false)}
         onCancel={() => setIsDetailModalVisible(false)}
       >
-        {/* ... (modal content) */}
+        {}
       </Modal>
 
       <Modal
@@ -231,7 +241,7 @@ const FormPembelian: React.FC = () => {
         onOk={handleEditPurchase}
         onCancel={() => setIsEditModalVisible(false)}
       >
-        {/* ... (edit modal content) */}
+        {}
         <Button type="default" onClick={handleDeletePurchase}>
           Delete
         </Button>
