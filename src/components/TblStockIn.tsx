@@ -124,7 +124,10 @@ const TblStockIn: React.FC = () => {
               type="text"
               icon={<InfoCircleOutlined />}
               onClick={() => {
-                setState({ ...state, selectedProduct: record });
+                setState({
+                  ...state,
+                  selectedProduct: record,
+                });
               }}
             />
           </Tooltip>

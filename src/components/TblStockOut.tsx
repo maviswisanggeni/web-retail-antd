@@ -1,11 +1,16 @@
-import { Button, Space, Tooltip } from "antd";
+import { Button, Modal, Space, Tooltip } from "antd";
 import Title from "antd/es/typography/Title";
 import React, { useEffect, useState } from "react";
 import { ProductsEntity } from "../models/IProducts";
 import Table, { ColumnsType } from "antd/es/table";
-import { DeleteOutlined, InfoCircleOutlined } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  InfoCircleOutlined,
+  ExclamationCircleFilled,
+} from "@ant-design/icons";
 import { ProductsService } from "../services/ProductsService";
 import FormAddStockOut from "./FormAddStockOut";
+import DetailProductStockOut from "./DetailProductStockOut";
 
 interface IState {
   loading: boolean;
@@ -14,6 +19,7 @@ interface IState {
   deleteResponse: string | null;
   searchText: string;
   isFormAddStockOutVisible: boolean;
+  selectedProduct: DataStockOutType | null;
 }
 
 interface DataStockOutType {
@@ -32,7 +38,40 @@ const TblStockOut: React.FC = () => {
     deleteResponse: null,
     searchText: "",
     isFormAddStockOutVisible: false,
+    selectedProduct: null,
   });
+
+  const { confirm } = Modal;
+
+  const showDeleteConfirm = (id: number) => {
+    confirm({
+      title: "Are you sure to delete this product?",
+      icon: <ExclamationCircleFilled />,
+      content: "This action cannot be undone",
+      okText: "Yes",
+      okType: "danger",
+      cancelText: "No",
+      onOk() {
+        console.log("OK");
+        ProductsService.deleteProduct(id)
+          .then((res) => {
+            setState({
+              ...state,
+              deleteResponse: JSON.stringify(res.data, null, 2),
+            });
+          })
+          .catch((err) => {
+            setState({
+              ...state,
+              deleteResponse: err.message,
+            });
+          });
+      },
+      onCancel() {
+        console.log("Cancel");
+      },
+    });
+  };
 
   const column: ColumnsType<DataStockOutType> = [
     {
@@ -78,29 +117,31 @@ const TblStockOut: React.FC = () => {
       key: "action",
       fixed: "right",
       width: 50,
-      render: () => (
+      render: (record) => (
         <Space>
-            <Tooltip title="Detail">
-              <Button
-                type="text"
-                icon={<InfoCircleOutlined />}
-                onClick={() => {
-                  // setSelectedProductId(record.id); // Set the selected product ID
-                  // setEditProductVisible(true);
-                }}
-              />
-            </Tooltip>
-            <Tooltip title="Delete">
-              <Button
-                danger
-                type="text"
-                icon={<DeleteOutlined />}
-                onClick={() => {
-                  // showDeleteConfirm(record.id)
-                }}
-              />
-            </Tooltip>
-          </Space>
+          <Tooltip title="Detail">
+            <Button
+              type="text"
+              icon={<InfoCircleOutlined />}
+              onClick={() => {
+                setState({
+                  ...state,
+                  selectedProduct: record,
+                });
+              }}
+            />
+          </Tooltip>
+          <Tooltip title="Delete">
+            <Button
+              danger
+              type="text"
+              icon={<DeleteOutlined />}
+              onClick={() => {
+                showDeleteConfirm(record.id);
+              }}
+            />
+          </Tooltip>
+        </Space>
       ),
     },
   ];
@@ -155,22 +196,24 @@ const TblStockOut: React.FC = () => {
         >
           Tambah
         </Button>
-        {state.isFormAddStockOutVisible &&  <Button
-          type="default"
-          onClick={() => {
-            setState({
-              ...state,
-              isFormAddStockOutVisible: false,
-            });
-          }}
-          style={{ 
-            position: "absolute",
-            top: 0,
-            right: 20,
-          }}
-        >
-          Close Form
-        </Button>}
+        {state.isFormAddStockOutVisible && (
+          <Button
+            type="default"
+            onClick={() => {
+              setState({
+                ...state,
+                isFormAddStockOutVisible: false,
+              });
+            }}
+            style={{
+              position: "absolute",
+              top: 0,
+              right: 20,
+            }}
+          >
+            Close Form
+          </Button>
+        )}
         {loading && <p>Loading...</p>}
         {errorMsg && <p>Failed fetch data : {errorMsg}</p>}
         <Table
@@ -179,6 +222,24 @@ const TblStockOut: React.FC = () => {
           scroll={{ x: 1000, y: 400 }}
           style={{ marginTop: 20 }}
         />
+
+        {state.selectedProduct && (
+          <DetailProductStockOut
+            product={state.selectedProduct}
+            onClose={() => setState({ ...state, selectedProduct: null })}
+          />
+        )}
+
+        {state.deleteResponse && (
+          <Modal
+            title="Sukses Menghapus Produk"
+            open={state.deleteResponse !== null} // true
+            footer={null}
+            onCancel={() => setState({ ...state, deleteResponse: null })}
+          >
+            <pre>{state.deleteResponse}</pre>
+          </Modal>
+        )}
       </div>
     </>
   );

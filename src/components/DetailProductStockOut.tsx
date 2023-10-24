@@ -2,18 +2,18 @@
 import React from "react";
 import { Modal, Descriptions, DescriptionsProps } from 'antd';
 
-interface DataStockInType {
+interface DataStockOutType {
   title: string;
   stock: number;
   rating: number;
 }
 
-interface DetailProductStockInProps {
-  product: DataStockInType | null;
+interface DetailProductStockOutProps {
+  product: DataStockOutType | null;
   onClose: () => void;
 }
 
-const DetailProductStockIn: React.FC<DetailProductStockInProps> = ({ product, onClose }) => {
+const DetailProductStockOut: React.FC<DetailProductStockOutProps> = ({ product, onClose }) => {
   const items: DescriptionsProps['items'] = [
     {
       label: 'Nama Barang',
@@ -28,7 +28,7 @@ const DetailProductStockIn: React.FC<DetailProductStockInProps> = ({ product, on
       children: product?.stock?.toString() ?? '',
     },
     {
-      label: 'Tanggal Masuk',
+      label: 'Tanggal Keluar',
       span: 2,
       key: 'rating',
       children: new Date(product?.rating.toFixed() ?? 0).toLocaleDateString("id-ID", {
@@ -38,22 +38,11 @@ const DetailProductStockIn: React.FC<DetailProductStockInProps> = ({ product, on
         day: "numeric",
       }),
     },
-    {
-      label: 'Pemasok Produk',
-      span: 2,
-      key: 'suplier',
-      children: [
-        'Pemasok 1',
-        'Pemasok 2',
-        'Pemasok 3',
-      ][Math.floor(Math.random() * 3)        
-      ],
-    }
   ];
 
   return (
     <Modal
-      title="Detail Produk Stok Masuk"
+      title="Detail Produk Stok Keluar"
       width={720}
       open={product !== null}
       footer={null}
@@ -66,4 +55,4 @@ const DetailProductStockIn: React.FC<DetailProductStockInProps> = ({ product, on
   );
 };
 
-export default DetailProductStockIn;
+export default DetailProductStockOut;
