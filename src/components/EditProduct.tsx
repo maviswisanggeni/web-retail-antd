@@ -80,19 +80,19 @@ const EditProduct: React.FC<EditProductProps> = ({
         onCancel={onClose}
       >
         <Form form={form} layout="vertical" name="edit_product_form">
-          <Form.Item label="Product Title" name="title">
+          <Form.Item label="Nama Barang" name="title">
             <Input />
           </Form.Item>
-          <Form.Item label="Price" name="price">
+          <Form.Item label="Harga Jual" name="price">
             <InputNumber />
           </Form.Item>
-          <Form.Item label="Stock" name="stock">
+          <Form.Item label="Stok" name="stock">
             <InputNumber />
           </Form.Item>
-          <Form.Item label="Brand" name="brand">
+          <Form.Item label="Satuan" name="brand">
             <Input />
           </Form.Item>
-          <Form.Item label="Category" name="category">
+          <Form.Item label="Kategori" name="category">
             <Select>{/* Add options for categories */}</Select>
           </Form.Item>
         </Form>

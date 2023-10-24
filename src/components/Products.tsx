@@ -11,6 +11,7 @@ import {
   SearchOutlined,
 } from "@ant-design/icons";
 import EditProduct from "./EditProduct";
+import AddProduct from "./AddProduct";
 
 interface IState {
   loading: boolean;
@@ -42,6 +43,7 @@ const Products: React.FC = () => {
   });
 
   const [editProductVisible, setEditProductVisible] = useState(false);
+  const [addProductVisible, setAddProductVisible] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState<number | null>(
     null
   );
@@ -285,6 +287,13 @@ const Products: React.FC = () => {
         <Title level={2} className="header-title">
           Data Produk
         </Title>
+        <Button
+          type="primary"
+          onClick={() => setAddProductVisible(true)}
+          style={{ marginTop: -30, marginBottom: 20, width: 100 }}
+        >
+          Tambah
+        </Button>
         {loading && <p>Loading...</p>}
         {errorMsg && <p>Failed fetch data : {errorMsg}</p>}
         <Table
@@ -311,6 +320,28 @@ const Products: React.FC = () => {
           onSave={(productId, updatedProduct) =>
             handleEditProduct(productId, updatedProduct)
           }
+        />
+
+        <AddProduct
+          visible={addProductVisible}
+          onClose={() => setAddProductVisible(false)}
+          onSave={() => {
+            ProductsService.getAllProducts()
+              .then((res) =>
+                setState({
+                  ...state,
+                  loading: false,
+                  products: res.data.products,
+                })
+              )
+              .catch((err) =>
+                setState({
+                  ...state,
+                  loading: false,
+                  errorMsg: err.message,
+                })
+              );
+          }}
         />
       </div>
     </>
