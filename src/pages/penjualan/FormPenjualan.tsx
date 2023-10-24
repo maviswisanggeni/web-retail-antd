@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Typography, Form, Input, Button, Table, Space, Popconfirm, Modal } from "antd";
+import { Typography, Form, Input, Button, Table, Space, Popconfirm, Modal, Select } from "antd";
 import { PlusOutlined, EditOutlined, DeleteOutlined, InfoCircleOutlined } from "@ant-design/icons";
+import axios from "axios";
 import XLSX from "xlsx";
 
 const { Title } = Typography;
+const { Option } = Select;
 
-interface SalesEntity {
-  salesPerson: string;
+interface PenjualanEntity {
+  sales: string;
   productName: string;
   quantity: number;
   customer: string;
@@ -15,21 +17,26 @@ interface SalesEntity {
 
 const FormPenjualan: React.FC = () => {
   const [form] = Form.useForm();
-  const [sales, setSales] = useState<SalesEntity[]>([]);
-  const [newSale, setNewSale] = useState<SalesEntity>({
-    salesPerson: "",
+  const [sales, setSales] = useState<PenjualanEntity[]>([]);
+  const [newSale, setNewSale] = useState<PenjualanEntity>({
+    sales: "",
     productName: "",
     quantity: 0,
     customer: "",
     revenue: 0,
   });
   const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
-  const [selectedRecord, setSelectedRecord] = useState<SalesEntity | null>(null);
+  const [selectedRecord, setSelectedRecord] = useState<PenjualanEntity | null>(null);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
-  const [editRecord, setEditRecord] = useState<SalesEntity | null>(null);
+  const [editRecord, setEditRecord] = useState<PenjualanEntity | null>(null);
+  const [productsData, setProductsData] = useState<string[]>([]);
   const [emptyDataWarning, setEmptyDataWarning] = useState(false);
 
   useEffect(() => {
+    axios.get("your-api-url-for-sales").then((response) => {
+      const fetchedProductsData = response.data;
+      setProductsData(fetchedProductsData);
+    });
 
     const savedSales = JSON.parse(localStorage.getItem("sales") || "[]");
     setSales(savedSales);
@@ -40,7 +47,7 @@ const FormPenjualan: React.FC = () => {
   }, [sales]);
 
   const handleAddSale = () => {
-    if (!newSale.salesPerson || !newSale.productName || newSale.quantity <= 0) {
+    if (!newSale.sales || !newSale.productName || newSale.quantity <= 0) {
       setEmptyDataWarning(true);
       return;
     }
@@ -51,7 +58,7 @@ const FormPenjualan: React.FC = () => {
     setSales([...sales, saleWithRevenue]);
 
     setNewSale({
-      salesPerson: "",
+      sales: "",
       productName: "",
       quantity: 0,
       customer: "",
@@ -66,6 +73,7 @@ const FormPenjualan: React.FC = () => {
     if (!editRecord) {
       return;
     }
+    
 
     setIsEditModalVisible(false);
   };
@@ -80,6 +88,16 @@ const FormPenjualan: React.FC = () => {
     setIsEditModalVisible(false);
   };
 
+  const handleDetail = (record: PenjualanEntity) => {
+    setSelectedRecord(record);
+    setIsDetailModalVisible(true);
+  };
+
+  const handleEdit = (record: PenjualanEntity) => {
+    setEditRecord(record);
+    setIsEditModalVisible(true);
+  };
+
   const getTotalRevenue = () => {
     return sales.reduce((total, sale) => total + sale.revenue, 0);
   };
@@ -87,24 +105,24 @@ const FormPenjualan: React.FC = () => {
   const exportToExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(sales);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Sales");
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Penjualan");
 
-    XLSX.writeFile(workbook, "sales.xlsx");
+    XLSX.writeFile(workbook, "penjualan.xlsx");
   };
 
   const columns = [
     {
-      title: "Sales Person",
-      dataIndex: "salesPerson",
-      key: "salesPerson",
+      title: "Sales",
+      dataIndex: "sales",
+      key: "sales",
     },
     {
-      title: "Product Name",
+      title: "Nama Produk",
       dataIndex: "productName",
       key: "productName",
     },
     {
-      title: "Quantity",
+      title: "Jumlah",
       dataIndex: "quantity",
       key: "quantity",
     },
@@ -114,14 +132,14 @@ const FormPenjualan: React.FC = () => {
       key: "customer",
     },
     {
-      title: "Revenue",
+      title: "Total Pendapatan",
       dataIndex: "revenue",
       key: "revenue",
     },
     {
-      title: "Actions",
+      title: "Aksi",
       key: "actions",
-      render: (text: any, record: SalesEntity) => (
+      render: (text: any, record: PenjualanEntity) => (
         <Space size="small">
           <Button
             type="link"
@@ -138,10 +156,10 @@ const FormPenjualan: React.FC = () => {
             Edit
           </Button>
           <Popconfirm
-            title="Are you sure to delete this data?"
-            onConfirm={handleDeleteSale}
-            okText="Yes"
-            cancelText="No"
+            title="Yakin Hapus Data?"
+            onConfirm={() => handleDeleteSale(record)}
+            okText="Ya"
+            cancelText="Tidak"
           >
             <Button type="default" icon={<DeleteOutlined />} />
           </Popconfirm>
@@ -150,34 +168,32 @@ const FormPenjualan: React.FC = () => {
     },
   ];
 
-  const handleDetail = (record: SalesEntity) => {
-    setSelectedRecord(record);
-    setIsDetailModalVisible(true);
-  };
-
-  const handleEdit = (record: SalesEntity) => {
-    setEditRecord(record);
-    setIsEditModalVisible(true);
-  };
-
   return (
     <div className="content">
       <Title>Transaksi Penjualan</Title>
 
       <Form form={form} layout="inline">
-        <Form.Item label="Sales Person" name="salesPerson">
+        <Form.Item label="Sales" name="sales">
           <Input
-            value={newSale.salesPerson}
-            onChange={(e) => setNewSale({ ...newSale, salesPerson: e.target.value })}
+            value={newSale.sales}
+            onChange={(e) => setNewSale({ ...newSale, sales: e.target.value })}
           />
         </Form.Item>
-        <Form.Item label="Product Name" name="productName">
-          <Input
+        <Form.Item label="Nama Produk" name="productName">
+          <Select
             value={newSale.productName}
-            onChange={(e) => setNewSale({ ...newSale, productName: e.target.value })}
-          />
+            onChange={(value) => {
+              setNewSale({ ...newSale, productName: value });
+            }}
+          >
+            {productsData.map((product, index) => (
+              <Option value={product} key={index}>
+                {product}
+              </Option>
+            ))}
+          </Select>
         </Form.Item>
-        <Form.Item label="Quantity" name="quantity">
+        <Form.Item label="Jumlah" name="quantity">
           <Input
             type="number"
             value={newSale.quantity}
@@ -193,8 +209,8 @@ const FormPenjualan: React.FC = () => {
           />
         </Form.Item>
         <Form.Item>
-          <Button type="primary" onClick={handleAddSale}style={{margin: 10 }}>
-            + Add Data
+          <Button type="primary" onClick={handleAddSale}>
+            Tambah Data
           </Button>
           {emptyDataWarning && (
             <span style={{ color: "red", marginLeft: 10 }}>Data kosong</span>
@@ -203,12 +219,12 @@ const FormPenjualan: React.FC = () => {
       </Form>
 
       <Button type="primary" onClick={exportToExcel} style={{ margin: "5px", background: "#008000", border: "none" }}>
-        Export to Excel
+        Ekspor Excel
       </Button>
 
       <Table columns={columns} dataSource={sales} style={{ margin: "8px" }} />
       <div>
-        <strong>Total Revenue: {getTotalRevenue()}</strong>
+        <strong>Total Pendapatan: {getTotalRevenue()}</strong>
       </div>
 
       <Modal
@@ -217,7 +233,7 @@ const FormPenjualan: React.FC = () => {
         onOk={() => setIsDetailModalVisible(false)}
         onCancel={() => setIsDetailModalVisible(false)}
       >
-        {/* ... (modal content) */}
+        {}
       </Modal>
 
       <Modal
@@ -226,9 +242,9 @@ const FormPenjualan: React.FC = () => {
         onOk={handleEditSale}
         onCancel={() => setIsEditModalVisible(false)}
       >
-        {/* ... (edit modal content) */}
-        <Button type="default" onClick={handleDeleteSale}>
-          Delete
+        {}
+        <Button type="default" onClick={() => handleDeleteSale(editRecord)}>
+          Hapus
         </Button>
       </Modal>
     </div>

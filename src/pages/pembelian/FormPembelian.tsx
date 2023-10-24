@@ -208,8 +208,8 @@ const FormPembelian: React.FC = () => {
           />
         </Form.Item>
         <Form.Item>
-          <Button type="primary" onClick={handleAddPurchase} style={{ margin: 10 }}>
-            + Add Data
+          <Button type="primary" onClick={handleAddPurchase}>
+            Tambah Data
           </Button>
           {emptyDataWarning && (
             <span style={{ color: "red", marginLeft: 10 }}>Data kosong</span>
@@ -218,7 +218,7 @@ const FormPembelian: React.FC = () => {
       </Form>
 
       <Button type="primary" onClick={exportToExcel} style={{ margin: "5px", background: "#008000", border: "none" }}>
-        Export to Excel
+        Export Excel
       </Button>
 
       <Table columns={columns} dataSource={purchases} style={{ margin: "8px" }} />
