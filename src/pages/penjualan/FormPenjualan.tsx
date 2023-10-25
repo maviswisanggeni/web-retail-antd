@@ -1,112 +1,109 @@
 import React, { useState, useEffect } from "react";
-import { Typography, Form, Input, Button, Table, Space, Popconfirm, Modal, Select } from "antd";
+import { Typography, Form, Input, Button, Table, Space, Popconfirm, Modal, Select, Tabs } from "antd";
 import { PlusOutlined, EditOutlined, DeleteOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import axios from "axios";
 import XLSX from "xlsx";
+import Products from "../../components/Products";
 
 const { Title } = Typography;
 const { Option } = Select;
+const { TabPane } = Tabs;
 
-interface PenjualanEntity {
+interface ProdukEntity {
   sales: string;
-  productName: string;
-  quantity: number;
-  customer: string;
-  revenue: number;
+  namaProduk: string;
+  jumlah: number;
+  pelanggan: string;
+  biaya: number;
 }
 
 const FormPenjualan: React.FC = () => {
   const [form] = Form.useForm();
-  const [sales, setSales] = useState<PenjualanEntity[]>([]);
-  const [newSale, setNewSale] = useState<PenjualanEntity>({
+  const [penjualan, setPenjualan] = useState<ProdukEntity[]>([]);
+  const [produkBaru, setProdukBaru] = useState<ProdukEntity>({
     sales: "",
-    productName: "",
-    quantity: 0,
-    customer: "",
-    revenue: 0,
+    namaProduk: "",
+    jumlah: 0,
+    pelanggan: "",
+    biaya: 0,
   });
   const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
-  const [selectedRecord, setSelectedRecord] = useState<PenjualanEntity | null>(null);
+  const [selectedRecord, setSelectedRecord] = useState<ProdukEntity | null>(null);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
-  const [editRecord, setEditRecord] = useState<PenjualanEntity | null>(null);
-  const [productsData, setProductsData] = useState<string[]>([]);
+  const [editRecord, setEditRecord] = useState<ProdukEntity | null>(null); // Mendeklarasikan editRecord sebagai variabel state
+  const [salesData, setSalesData] = useState<string[]>([]);
   const [emptyDataWarning, setEmptyDataWarning] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [tabKey, setTabKey] = useState("1");
 
   useEffect(() => {
-    axios.get("your-api-url-for-sales").then((response) => {
-      const fetchedProductsData = response.data;
-      setProductsData(fetchedProductsData);
+    axios.get("url-api-anda").then((response) => {
+      const fetchedSalesData = response.data;
+      setSalesData(fetchedSalesData);
     });
 
-    const savedSales = JSON.parse(localStorage.getItem("sales") || "[]");
-    setSales(savedSales);
+    const savedPenjualan = JSON.parse(localStorage.getItem("penjualan") || "[]");
+    setPenjualan(savedPenjualan);
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("sales", JSON.stringify(sales));
-  }, [sales]);
+    localStorage.setItem("penjualan", JSON.stringify(penjualan));
+  }, [penjualan]);
 
-  const handleAddSale = () => {
-    if (!newSale.sales || !newSale.productName || newSale.quantity <= 0) {
+  const handleTambahPenjualan = () => {
+    if (!produkBaru.sales || !produkBaru.namaProduk || produkBaru.jumlah <= 0) {
       setEmptyDataWarning(true);
       return;
     }
 
-    const revenue = newSale.quantity * 100;
-    const saleWithRevenue = { ...newSale, revenue };
+    const biaya = produkBaru.jumlah * 100;
+    const penjualanDenganBiaya = { ...produkBaru, biaya };
 
-    setSales([...sales, saleWithRevenue]);
+    setPenjualan([...penjualan, penjualanDenganBiaya]);
 
-    setNewSale({
+    setProdukBaru({
       sales: "",
-      productName: "",
-      quantity: 0,
-      customer: "",
-      revenue: 0,
+      namaProduk: "",
+      jumlah: 0,
+      pelanggan: "",
+      biaya: 0,
     });
 
     form.resetFields();
     setEmptyDataWarning(false);
+    setIsModalVisible(false);
   };
 
-  const handleEditSale = () => {
+  const showModal = () => {
+    setIsModalVisible(true);
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+  };
+
+  const handleTabChange = (key: string) => {
+    setTabKey(key);
+  };
+
+
+  const handleSimpanEdit = () => {
     if (!editRecord) {
       return;
     }
 
+    const penjualanDiperbarui = penjualan.map((item) =>
+      item === editRecord ? { ...item, ...produkBaru } : item
+    );
+    setPenjualan(penjualanDiperbarui);
     setIsEditModalVisible(false);
-  };
-
-  const handleDeleteSale = () => {
-    if (!editRecord) {
-      return;
-    }
-
-    const updatedSales = sales.filter((item) => item !== editRecord);
-    setSales(updatedSales);
-    setIsEditModalVisible(false);
-  };
-
-  const handleDetail = (record: PenjualanEntity) => {
-    setSelectedRecord(record);
-    setIsDetailModalVisible(true);
-  };
-
-  const handleEdit = (record: PenjualanEntity) => {
-    setEditRecord(record);
-    setIsEditModalVisible(true);
-  };
-
-  const getTotalRevenue = () => {
-    return sales.reduce((total, sale) => total + sale.revenue, 0);
-  };
-
-  const exportToExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(sales);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Penjualan");
-
-    XLSX.writeFile(workbook, "penjualan.xlsx");
+    setProdukBaru({
+      sales: "",
+      namaProduk: "",
+      jumlah: 0,
+      pelanggan: "",
+      biaya: 0,
+    });
   };
 
   const columns = [
@@ -117,28 +114,28 @@ const FormPenjualan: React.FC = () => {
     },
     {
       title: "Nama Produk",
-      dataIndex: "productName",
-      key: "productName",
+      dataIndex: "namaProduk",
+      key: "namaProduk",
     },
     {
       title: "Jumlah",
-      dataIndex: "quantity",
-      key: "quantity",
+      dataIndex: "jumlah",
+      key: "jumlah",
     },
     {
-      title: "Customer",
-      dataIndex: "customer",
-      key: "customer",
+      title: "Pelanggan",
+      dataIndex: "pelanggan",
+      key: "pelanggan",
     },
     {
-      title: "Total Pendapatan",
-      dataIndex: "revenue",
-      key: "revenue",
+      title: "Total Biaya",
+      dataIndex: "biaya",
+      key: "biaya",
     },
     {
-      title: "Aksi",
-      key: "actions",
-      render: (text: any, record: PenjualanEntity) => (
+      title: "Tindakan",
+      key: "tindakan",
+      render: (text: any, record: ProdukEntity) => (
         <Space size="small">
           <Button
             type="link"
@@ -156,7 +153,7 @@ const FormPenjualan: React.FC = () => {
           </Button>
           <Popconfirm
             title="Yakin Hapus Data?"
-            onConfirm={() => handleDeleteSale()}
+            onConfirm={() => handleHapusPenjualan(record)}
             okText="Ya"
             cancelText="Tidak"
           >
@@ -167,55 +164,94 @@ const FormPenjualan: React.FC = () => {
     },
   ];
 
+  const handleHapusPenjualan = (record: ProdukEntity) => {
+    const penjualanDiperbarui = penjualan.filter((item) => item !== record);
+    setPenjualan(penjualanDiperbarui);
+    setIsEditModalVisible(false);
+  };
+
+  const handleDetail = (record: ProdukEntity) => {
+    setSelectedRecord(record);
+    setIsDetailModalVisible(true);
+  };
+
+  const handleEdit = (record: ProdukEntity) => {
+    setEditRecord(record);
+    setIsEditModalVisible(true);
+  };
+
+  const getTotalBiaya = () => {
+    return penjualan.reduce((total, penjualan) => total + penjualan.biaya, 0);
+  };
+
+  const exportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(penjualan);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Penjualan");
+
+    XLSX.writeFile(workbook, "penjualan.xlsx");
+  };
+
   return (
     <div className="content">
       <Title>Transaksi Penjualan</Title>
-
-      <Form form={form} layout="inline">
-        <Form.Item label="Sales" name="sales">
-          <Input
-            value={newSale.sales}
-            onChange={(e) => setNewSale({ ...newSale, sales: e.target.value })}
-          />
-        </Form.Item>
-        <Form.Item label="Nama Produk" name="productName">
-  <Input
-    value={newSale.productName}
-    onChange={(e) => setNewSale({ ...newSale, productName: e.target.value })}
-  />
-</Form.Item>
-        <Form.Item label="Jumlah" name="quantity">
-          <Input
-            type="number"
-            value={newSale.quantity}
-            onChange={(e) =>
-              setNewSale({ ...newSale, quantity: parseInt(e.target.value) || 0 })
-            }
-          />
-        </Form.Item>
-        <Form.Item label="Customer" name="customer">
-          <Input
-            value={newSale.customer}
-            onChange={(e) => setNewSale({ ...newSale, customer: e.target.value })}
-          />
-        </Form.Item>
-        <Form.Item>
-          <Button type="primary" onClick={handleAddSale}style={{margin:10}}>
+      <Tabs defaultActiveKey="1" activeKey={tabKey} onChange={handleTabChange}>
+        <TabPane tab="Daftar Penjualan" key="1">
+          <Button type="primary" onClick={showModal}>
             Tambah Data
           </Button>
-          {emptyDataWarning && (
-            <span style={{ color: "red", marginLeft: 10 }}>Data kosong</span>
-          )}
-        </Form.Item>
-      </Form>
 
-      <Button type="primary" onClick={exportToExcel} style={{ margin: "5px", background: "#008000", border: "none" }}>
-        Ekspor Excel
-      </Button>
+          <Modal
+            title="Tambah Data Penjualan"
+            visible={isModalVisible}
+            onOk={handleTambahPenjualan}
+            onCancel={handleCancel}
+          >
+            <Form form={form} layout="vertical">
+              <Form.Item label="Sales" name="sales">
+                <Input
+                  value={produkBaru.sales}
+                  onChange={(e) => setProdukBaru({ ...produkBaru, sales: e.target.value })}
+                />
+              </Form.Item>
+              <Form.Item label="Nama Produk" name="namaProduk">
+                <Input
+                  value={produkBaru.namaProduk}
+                  onChange={(e) => setProdukBaru({ ...produkBaru, namaProduk: e.target.value })}
+                />
+              </Form.Item>
+              <Form.Item label="Jumlah" name="jumlah">
+                <Input
+                  type="number"
+                  value={produkBaru.jumlah}
+                  onChange={(e) =>
+                    setProdukBaru({ ...produkBaru, jumlah: parseInt(e.target.value) || 0 })
+                  }
+                />
+              </Form.Item>
+              <Form.Item label="Pelanggan" name="pelanggan">
+                <Input
+                  value={produkBaru.pelanggan}
+                  onChange={(e) => setProdukBaru({ ...produkBaru, pelanggan: e.target.value })}
+                />
+              </Form.Item>
+            </Form>
+          </Modal>
 
-      <Table columns={columns} dataSource={sales} style={{ margin: "8px" }} />
+          <Button
+            type="primary"
+            onClick={exportToExcel}
+            style={{ margin: "5px", background: "#008000", border: "none" }}
+          >
+            Ekspor ke Excel
+          </Button>
+
+          <Table columns={columns} dataSource={penjualan} style={{ margin: "8px" }} />
+        </TabPane>
+      </Tabs>
+
       <div>
-        <strong>Total Pendapatan: {getTotalRevenue()}</strong>
+        <strong>Total Biaya: {getTotalBiaya()}</strong>
       </div>
 
       <Modal
@@ -224,19 +260,45 @@ const FormPenjualan: React.FC = () => {
         onOk={() => setIsDetailModalVisible(false)}
         onCancel={() => setIsDetailModalVisible(false)}
       >
-        {}
+        {/* Konten untuk modal "Detail Penjualan" */}
       </Modal>
 
       <Modal
         title="Edit Penjualan"
         visible={isEditModalVisible}
-        onOk={handleEditSale}
+        onOk={handleSimpanEdit}
         onCancel={() => setIsEditModalVisible(false)}
       >
-        {}
-        <Button type="default" onClick={() => handleDeleteSale()}>
-          Hapus
-        </Button>
+        {/* Konten untuk modal "Edit Penjualan" */}
+        <Form form={form} layout="vertical">
+          <Form.Item label="Sales" name="sales">
+            <Input
+              value={produkBaru.sales}
+              onChange={(e) => setProdukBaru({ ...produkBaru, sales: e.target.value })}
+            />
+          </Form.Item>
+          <Form.Item label="Nama Produk" name="namaProduk">
+            <Input
+              value={produkBaru.namaProduk}
+              onChange={(e) => setProdukBaru({ ...produkBaru, namaProduk: e.target.value })}
+            />
+          </Form.Item>
+          <Form.Item label="Jumlah" name="jumlah">
+            <Input
+              type="number"
+              value={produkBaru.jumlah}
+              onChange={(e) =>
+                setProdukBaru({ ...produkBaru, jumlah: parseInt(e.target.value) || 0 })
+              }
+            />
+          </Form.Item>
+          <Form.Item label="Pelanggan" name="pelanggan">
+            <Input
+              value={produkBaru.pelanggan}
+              onChange={(e) => setProdukBaru({ ...produkBaru, pelanggan: e.target.value })}
+            />
+          </Form.Item>
+        </Form>
       </Modal>
     </div>
   );

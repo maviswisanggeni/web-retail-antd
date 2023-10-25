@@ -52,7 +52,7 @@ const items: MenuProps["items"] = [
 
 const DashboardComponent: React.FC = () => (
   <div style={{ textAlign: "center" }}>
-    <Title>Dashboard</Title>
+    <Title>Welcome</Title>
   </div>
 );
 
