@@ -15,6 +15,7 @@ import Gudang from "../gudang/Gudang";
 import Title from "antd/es/typography/Title";
 import StockIn from "../gudang/StockIn";
 import StockOut from "../gudang/StockOut";
+import Login from "../Login/Login";
 
 const { Header, Sider, Content } = Layout;
 
@@ -108,6 +109,7 @@ const Dashboard: React.FC = () => {
               <Route path="/gudang" element={<Gudang />} />
               <Route path="/gudang/masuk" element={<StockIn />} />
               <Route path="/gudang/keluar" element={<StockOut />} />
+              <Route path="/login/post" element={<StockOut />} />
             </Routes>
           </Content>
         </Layout>
