@@ -3,7 +3,6 @@ import { Typography, Form, Input, Button, Table, Space, Popconfirm, Modal, Selec
 import { PlusOutlined, EditOutlined, DeleteOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import axios from "axios";
 import XLSX from "xlsx";
-import Products from "../../components/Products";
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -30,7 +29,7 @@ const FormPenjualan: React.FC = () => {
   const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<ProdukEntity | null>(null);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
-  const [editRecord, setEditRecord] = useState<ProdukEntity | null>(null); // Mendeklarasikan editRecord sebagai variabel state
+  const [editRecord, setEditRecord] = useState<ProdukEntity | null>(null);
   const [salesData, setSalesData] = useState<string[]>([]);
   const [emptyDataWarning, setEmptyDataWarning] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -85,7 +84,6 @@ const FormPenjualan: React.FC = () => {
   const handleTabChange = (key: string) => {
     setTabKey(key);
   };
-
 
   const handleSimpanEdit = () => {
     if (!editRecord) {
@@ -260,7 +258,15 @@ const FormPenjualan: React.FC = () => {
         onOk={() => setIsDetailModalVisible(false)}
         onCancel={() => setIsDetailModalVisible(false)}
       >
-        {/* Konten untuk modal "Detail Penjualan" */}
+        {selectedRecord && (
+          <div>
+            <p><strong>Sales:</strong> {selectedRecord.sales}</p>
+            <p><strong>Nama Produk:</strong> {selectedRecord.namaProduk}</p>
+            <p><strong>Jumlah:</strong> {selectedRecord.jumlah}</p>
+            <p><strong>Pelanggan:</strong> {selectedRecord.pelanggan}</p>
+            <p><strong>Total Biaya:</strong> {selectedRecord.biaya}</p>
+          </div>
+        )}
       </Modal>
 
       <Modal
@@ -269,7 +275,6 @@ const FormPenjualan: React.FC = () => {
         onOk={handleSimpanEdit}
         onCancel={() => setIsEditModalVisible(false)}
       >
-        {/* Konten untuk modal "Edit Penjualan" */}
         <Form form={form} layout="vertical">
           <Form.Item label="Sales" name="sales">
             <Input
