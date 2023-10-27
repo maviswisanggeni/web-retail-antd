@@ -176,7 +176,7 @@ const FormPembelian: React.FC = () => {
       key: "jumlah",
     },
     {
-      title: "Total Biaya",
+      title: "Total Biaya(Rp)",
       dataIndex: "biaya",
       key: "biaya",
     },
@@ -320,7 +320,7 @@ const FormPembelian: React.FC = () => {
       </Tabs>
 
       <div className="total-biaya-box">
-        <strong>Total Biaya: {getTotalBiaya()}</strong>
+        <strong>Total Biaya(Rp): {getTotalBiaya()}</strong>
       </div>
 
       <Modal
