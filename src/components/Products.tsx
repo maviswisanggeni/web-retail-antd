@@ -1,6 +1,5 @@
 import Title from "antd/es/typography/Title";
 import React, { useState, useEffect } from "react";
-import { ProductsEntity } from "../models/IProducts";
 import { ProductsService } from "../services/ProductsService";
 import type { ColumnsType } from "antd/es/table";
 import { Button, Space, Table, Modal, Tooltip, Input } from "antd";
@@ -12,10 +11,11 @@ import {
 } from "@ant-design/icons";
 import EditProduct from "./EditProduct";
 import AddProduct from "./AddProduct";
+import { IProducts } from "../models/IProducts";
 
 interface IState {
   loading: boolean;
-  products: ProductsEntity[];
+  products: IProducts[];
   errorMsg: string;
   deleteResponse: string | null;
   searchText: string;
@@ -26,9 +26,7 @@ interface DataType {
   id: number;
   title: string;
   price: number;
-  brand: string;
   stock: number;
-  category: string;
 }
 
 const { Search } = Input;
@@ -36,7 +34,7 @@ const { Search } = Input;
 const Products: React.FC = () => {
   const [state, setState] = useState<IState>({
     loading: false,
-    products: [] as ProductsEntity[],
+    products: [] as IProducts[],
     errorMsg: "",
     deleteResponse: null,
     searchText: "",
@@ -77,6 +75,7 @@ const Products: React.FC = () => {
             setState({
               ...state,
               deleteResponse: JSON.stringify(res.data, null, 2),
+              products: state.products.filter((product) => product.id !== id),
             });
           })
           .catch((err) => {
@@ -94,7 +93,7 @@ const Products: React.FC = () => {
 
   const handleEditProduct = (
     productId: number,
-    updatedProductData: Partial<ProductsEntity>
+    updatedProductData: Partial<IProducts>
   ): void => {
     const updatedProducts = state.products.map((product) =>
       product.id === productId ? { ...product, ...updatedProductData } : product
@@ -107,8 +106,8 @@ const Products: React.FC = () => {
     {
       title: "No",
       width: 50,
-      dataIndex: "id",
-      key: "id",
+      dataIndex: "key",
+      key: "key",
       fixed: "left",
     },
     {
@@ -188,30 +187,18 @@ const Products: React.FC = () => {
       ),
     },
     {
-      title: "Harga Jual",
+      title: "Harga",
       width: 100,
       dataIndex: "price",
       key: "price",
       sorter: (a, b) => a.price - b.price,
-      render: (price: number) => `$${price}`,
+      render: (price: number) => `Rp. ${price.toLocaleString("id-ID")}`,
     },
     {
       title: "Stok",
-      width: 50,
+      width: 100,
       dataIndex: "stock",
       key: "stock",
-    },
-    {
-      title: "Satuan",
-      width: 150,
-      dataIndex: "brand",
-      key: "brand",
-    },
-    {
-      title: "Kategori",
-      width: 150,
-      dataIndex: "category",
-      key: "category",
     },
     {
       title: "Action",
@@ -249,13 +236,14 @@ const Products: React.FC = () => {
 
   // Network request
   useEffect(() => {
+    console.log(data)
     setState({ ...state, loading: true });
     ProductsService.getAllProducts()
       .then((res) =>
         setState({
           ...state,
           loading: false,
-          products: res.data.products,
+          products: res.data,
         })
       )
       .catch((err) =>
@@ -271,13 +259,13 @@ const Products: React.FC = () => {
 
   for (let i = 0; i < products.length; i++) {
     data.push({
-      key: i,
+      key: i + 1,
       id: products[i].id,
-      title: products[i].title,
-      price: products[i].price,
-      stock: products[i].stock,
-      brand: products[i].brand,
-      category: products[i].category,
+      title: products[i].product_name,
+      price: products[i].product_price,
+      stock: products[i].product_quantity,
+      // brand: products[i].brand,
+      // category: products[i].category,
     });
   }
 
@@ -331,7 +319,7 @@ const Products: React.FC = () => {
                 setState({
                   ...state,
                   loading: false,
-                  products: res.data.products,
+                  products: res.data,
                 })
               )
               .catch((err) =>

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Form, Input, InputNumber, Select, Modal, message } from "antd";
+import { Form, Input, InputNumber, Modal, message } from "antd";
 import { ProductsService } from "../services/ProductsService";
 
 interface AddProductProps {
@@ -12,21 +12,17 @@ const AddProduct: React.FC<AddProductProps> = ({ visible, onClose, onSave }) => 
   const [form] = Form.useForm();
   const [isSaving, setIsSaving] = useState(false);
 
-  const handleSelectChange = (value: { value: string; label: React.ReactNode }) => {
-    console.log(`selected ${value}`);
-  }
-
   const handleSave = async () => {
     try {
+
       const values = await form.validateFields();
       setIsSaving(true);
+      
 
       const newProductData = {
-        title: values.title,
-        price: values.price,
-        stock: values.stock,
-        brand: values.brand,
-        category: values.category,
+        product_name: values.title,
+        product_price: values.price,
+        product_quantity: values.stock,
       };
 
       ProductsService.createProduct(newProductData)
@@ -39,6 +35,7 @@ const AddProduct: React.FC<AddProductProps> = ({ visible, onClose, onSave }) => 
 
           if (onSave) {
             onSave();
+            form.resetFields();
           }
         })
         .catch((error) => {
@@ -63,39 +60,13 @@ const AddProduct: React.FC<AddProductProps> = ({ visible, onClose, onSave }) => 
       >
         <Form form={form} layout="vertical" name="add_product_form" initialValues={{ category: 'smartphone' }}>
           <Form.Item label="Nama Barang" name="title">
-            <Input />
+            <Input style={{ width: '100%' }} />
           </Form.Item>
           <Form.Item label="Harga Jual" name="price">
-            <InputNumber />
+            <InputNumber style={{ width: '100%' }} />
           </Form.Item>
           <Form.Item label="Stok" name="stock">
-            <InputNumber />
-          </Form.Item>
-          <Form.Item label="Satuan" name="brand">
-            <Input />
-          </Form.Item>
-          <Form.Item label="Kategori" name="category">
-            <Select 
-              onChange={handleSelectChange}
-              options={[
-                {
-                  value: 'laptop',
-                  label: 'Laptop',
-                },
-                {
-                  value: 'electronics',
-                  label: 'Electronics',
-                },
-                {
-                  value: 'atk',
-                  label: 'ATK',
-                },
-                {
-                  value: 'lainnya',
-                  label: 'Lainnya',
-                },
-              ]}
-            />
+            <InputNumber style={{ width: '100%' }} />
           </Form.Item>
         </Form>
       </Modal>

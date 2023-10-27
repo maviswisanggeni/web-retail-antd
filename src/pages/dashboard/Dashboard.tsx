@@ -16,6 +16,7 @@ import Title from "antd/es/typography/Title";
 import StockIn from "../gudang/StockIn";
 import StockOut from "../gudang/StockOut";
 import Login from "../Login/Login";
+import Stock from "../gudang/Stock";
 
 const { Header, Sider, Content } = Layout;
 
@@ -45,8 +46,9 @@ const items: MenuProps["items"] = [
   ]),
   getItem("Gudang", "4", <InboxOutlined />, [
     getItem(<Link to="/gudang">Data Produk</Link>, "4-1"),
-    getItem(<Link to="/gudang/masuk">Stok Masuk</Link>, "4-2"),
-    getItem(<Link to="/gudang/keluar">Stok Keluar</Link>, "4-3"),
+    getItem(<Link to="/gudang/stok">Penyesuaian Stok</Link>, "4-2"),
+    // getItem(<Link to="/gudang/masuk">Stok Masuk</Link>, "4-2"),
+    // getItem(<Link to="/gudang/keluar">Stok Keluar</Link>, "4-3"),
   ]),
 ];
 
@@ -107,8 +109,9 @@ const Dashboard: React.FC = () => {
               <Route path="/penjualan/post" element={<FormPenjualan />} />
               <Route path="/pembelian/post" element={<FormPembelian />} />
               <Route path="/gudang" element={<Gudang />} />
-              <Route path="/gudang/masuk" element={<StockIn />} />
-              <Route path="/gudang/keluar" element={<StockOut />} />
+              <Route path="/gudang/stok" element={<Stock />} />
+              {/* <Route path="/gudang/masuk" element={<StockIn />} /> */}
+              {/* <Route path="/gudang/keluar" element={<StockOut />} /> */}
               <Route path="/login/post" element={<StockOut />} />
             </Routes>
           </Content>

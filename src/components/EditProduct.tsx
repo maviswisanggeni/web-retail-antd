@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Form, Input, InputNumber, Select, Modal, message } from "antd";
 import { ProductsService } from "../services/ProductsService"; // Import your ProductsService
-import { ProductsEntity } from "../models/IProducts";
+import { IProducts } from "../models/IProducts";
 
 interface EditProductProps {
   visible: boolean;
   onClose: () => void;
-  productId: number | null; // Changed the type to number | null
-  onSave: (productId: number, updatedProduct: Partial<ProductsEntity>) => void;
+  productId: number | null;
+  onSave: (productId: number, updatedProduct: Partial<IProducts>) => void;
 }
 
 const EditProduct: React.FC<EditProductProps> = ({
@@ -24,20 +24,15 @@ const EditProduct: React.FC<EditProductProps> = ({
       const values = await form.validateFields();
       setIsSaving(true);
 
-      // Prepare the data to be sent in the PUT request
       const updatedProductData = {
-        title: values.title,
-        price: values.price,
-        stock: values.stock,
-        brand: values.brand,
-        category: values.category,
+        product_name: values.title,
+        product_price: values.price,
+        product_quantity: values.stock,
       };
 
-      // Make a PUT request to update the product
       if (productId !== null) {
         ProductsService.updateProduct(productId, updatedProductData)
           .then(() => {
-            // After a successful update, trigger a callback and close the modal
             onSave(productId, updatedProductData);
             setIsSaving(false);
             onClose();
@@ -56,13 +51,16 @@ const EditProduct: React.FC<EditProductProps> = ({
     }
   };
 
-  // When the EditProduct component is mounted or the productId changes, fetch the product data
   useEffect(() => {
     if (visible && productId !== null) {
-      // Fetch the product data based on the productId
-      ProductsService.getProduct(productId)
+      ProductsService.getProductById(productId)
         .then((res) => {
-          form.setFieldsValue(res.data); // Set the form fields with product data
+          
+          form.setFieldsValue({
+            title: res.data.product_name,
+            price: `Rp. ${res.data.product_price.toLocaleString("id-ID")}`,
+            stock: res.data.product_quantity,
+          });
         })
         .catch((err) => {
           console.error("Failed to fetch product data:", err);
@@ -81,19 +79,13 @@ const EditProduct: React.FC<EditProductProps> = ({
       >
         <Form form={form} layout="vertical" name="edit_product_form">
           <Form.Item label="Nama Barang" name="title">
-            <Input />
+            <Input style={{ width: '100%' }} />
           </Form.Item>
-          <Form.Item label="Harga Jual" name="price">
-            <InputNumber />
+          <Form.Item label="Harga" name="price">
+            <InputNumber style={{ width: '100%' }} />
           </Form.Item>
           <Form.Item label="Stok" name="stock">
-            <InputNumber />
-          </Form.Item>
-          <Form.Item label="Satuan" name="brand">
-            <Input />
-          </Form.Item>
-          <Form.Item label="Kategori" name="category">
-            <Select>{/* Add options for categories */}</Select>
+            <InputNumber style={{ width: '100%' }} />
           </Form.Item>
         </Form>
       </Modal>
