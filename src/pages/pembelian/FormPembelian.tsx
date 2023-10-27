@@ -9,6 +9,7 @@ const { Option } = Select;
 const { TabPane } = Tabs;
 
 interface PembelianEntity {
+  serialNumber: number;
   supplier: string;
   namaBarang: string;
   jumlah: number;
@@ -19,20 +20,23 @@ const FormPembelian: React.FC = () => {
   const [form] = Form.useForm();
   const [pembelian, setPembelian] = useState<PembelianEntity[]>([
     {
-      supplier: "PT Haryanto",
-      namaBarang: "Plastik",
+      serialNumber: 1,
+      supplier: "Supplier A",
+      namaBarang: "Barang 1",
       jumlah: 5,
       biaya: 500,
     },
     {
-      supplier: "PT Cahaya Numerta",
-      namaBarang: "Textile",
+      serialNumber: 2,
+      supplier: "Supplier B",
+      namaBarang: "Barang 2",
       jumlah: 3,
       biaya: 300,
     },
   ]);
   const [filteredPembelian, setFilteredPembelian] = useState<PembelianEntity[]>([]);
   const [barangBaru, setBarangBaru] = useState<PembelianEntity>({
+    serialNumber: 0,
     supplier: "",
     namaBarang: "",
     jumlah: 0,
@@ -50,10 +54,10 @@ const FormPembelian: React.FC = () => {
   const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
-    // axios.get("url-api-anda").then((response) => {
-    //   const fetchedSupplierData = response.data;
-    //   setSupplierData(fetchedSupplierData);
-    // });
+       axios.get("url-api-anda").then((response) => {
+       const fetchedSupplierData = response.data;
+       setSupplierData(fetchedSupplierData);
+    });
 
     const savedPembelian = JSON.parse(localStorage.getItem("pembelian") || "[]");
     setPembelian(savedPembelian);
@@ -63,6 +67,10 @@ const FormPembelian: React.FC = () => {
     localStorage.setItem("pembelian", JSON.stringify(pembelian));
   }, [pembelian]);
 
+  const generateSerialNumber = () => {
+    return Math.floor(Math.random() * 1000000); 
+  };
+
   const handleTambahPembelian = () => {
     if (!barangBaru.supplier || !barangBaru.namaBarang || barangBaru.jumlah <= 0) {
       setEmptyDataWarning(true);
@@ -70,11 +78,13 @@ const FormPembelian: React.FC = () => {
     }
 
     const biaya = barangBaru.jumlah * 100;
-    const pembelianDenganBiaya = { ...barangBaru, biaya };
+    const serialNumber = generateSerialNumber();
+    const pembelianDenganBiaya = { ...barangBaru, biaya, serialNumber };
 
     setPembelian([...pembelian, pembelianDenganBiaya]);
 
     setBarangBaru({
+      serialNumber: 0,
       supplier: "",
       namaBarang: "",
       jumlah: 0,
@@ -109,6 +119,7 @@ const FormPembelian: React.FC = () => {
     setPembelian(pembelianDiperbarui);
     setIsEditModalVisible(false);
     setBarangBaru({
+      serialNumber: 0,
       supplier: "",
       namaBarang: "",
       jumlah: 0,
@@ -134,7 +145,6 @@ const FormPembelian: React.FC = () => {
   };
 
   const generateFakturContent = (record: PembelianEntity) => {
-    // Generate the faktur content using the record data
     return `
       <div>
         <h1>Faktur Pembelian</h1>
@@ -142,6 +152,7 @@ const FormPembelian: React.FC = () => {
         <p><strong>Nama Barang:</strong> ${record.namaBarang}</p>
         <p><strong>Jumlah:</strong> ${record.jumlah}</p>
         <p><strong>Total Biaya:</strong> ${record.biaya}</p>
+        <p><strong>Serial Number:</strong> ${record.serialNumber}</p>
       </div>
     `;
   };
@@ -176,9 +187,14 @@ const FormPembelian: React.FC = () => {
       key: "jumlah",
     },
     {
-      title: "Total Biaya",
+      title: "Total Biaya(Rp)",
       dataIndex: "biaya",
       key: "biaya",
+    },
+    {
+      title: "Serial Number",
+      dataIndex: "serialNumber",
+      key: "serialNumber",
     },
     {
       title: "Tindakan",
@@ -320,7 +336,7 @@ const FormPembelian: React.FC = () => {
       </Tabs>
 
       <div className="total-biaya-box">
-        <strong>Total Biaya: {getTotalBiaya()}</strong>
+        <strong>Total Biaya(Rp): {getTotalBiaya()}</strong>
       </div>
 
       <Modal
@@ -342,6 +358,9 @@ const FormPembelian: React.FC = () => {
             </p>
             <p>
               <strong>Total Biaya:</strong> {selectedRecord.biaya}
+            </p>
+            <p>
+              <strong>Serial Number:</strong> {selectedRecord.serialNumber}
             </p>
           </div>
         )}
