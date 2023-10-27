@@ -307,7 +307,7 @@ const FormPenjualan: React.FC = () => {
             </Button>
           </Space>
 
-          <Button type="primary" onClick={showModal} style={{ marginLeft: 620 }}>
+          <Button type="primary" onClick={showModal} style={{ marginLeft: 600 }}>
             Tambah Data
           </Button>
 
