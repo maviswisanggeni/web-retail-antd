@@ -9,6 +9,7 @@ const { Option } = Select;
 const { TabPane } = Tabs;
 
 interface ProdukEntity {
+  serialNumber: number;
   sales: string;
   namaProduk: string;
   jumlah: number;
@@ -16,8 +17,10 @@ interface ProdukEntity {
   biaya: number;
 }
 
+//dummy
 const dummyData: ProdukEntity[] = [
   {
+    serialNumber: 1,
     sales: "John Doe",
     namaProduk: "Product A",
     jumlah: 10,
@@ -25,6 +28,7 @@ const dummyData: ProdukEntity[] = [
     biaya: 1000,
   },
   {
+    serialNumber: 2,
     sales: "Jane Smith",
     namaProduk: "Product B",
     jumlah: 5,
@@ -32,20 +36,26 @@ const dummyData: ProdukEntity[] = [
     biaya: 500,
   },
   {
+    serialNumber: 3,
     sales: "Sam Johnson",
     namaProduk: "Product C",
     jumlah: 8,
     pelanggan: "Customer Z",
     biaya: 800,
   },
-  // Add more dummy data as needed
+
 ];
+
+function generateSerialNumber() {
+  return Math.floor(1000 + Math.random() * 9000);
+}
 
 const FormPenjualan: React.FC = () => {
   const [form] = Form.useForm();
   const [penjualan, setPenjualan] = useState<ProdukEntity[]>(dummyData);
   const [filteredPenjualan, setFilteredPenjualan] = useState<ProdukEntity[]>([]);
   const [produkBaru, setProdukBaru] = useState<ProdukEntity>({
+    serialNumber: generateSerialNumber(),
     sales: "",
     namaProduk: "",
     jumlah: 0,
@@ -84,11 +94,12 @@ const FormPenjualan: React.FC = () => {
     }
 
     const biaya = produkBaru.jumlah * 100;
-    const penjualanDenganBiaya = { ...produkBaru, biaya };
+    const penjualanDenganBiaya = { ...produkBaru, biaya, serialNumber: generateSerialNumber() };
 
     setPenjualan([...penjualan, penjualanDenganBiaya]);
 
     setProdukBaru({
+      serialNumber: generateSerialNumber(),
       sales: "",
       namaProduk: "",
       jumlah: 0,
@@ -119,11 +130,12 @@ const FormPenjualan: React.FC = () => {
     }
 
     const penjualanDiperbarui = penjualan.map((item) =>
-      item === editRecord ? { ...item, ...produkBaru } : item
+      item.serialNumber === editRecord.serialNumber ? { ...item, ...produkBaru } : item
     );
     setPenjualan(penjualanDiperbarui);
     setIsEditModalVisible(false);
     setProdukBaru({
+      serialNumber: generateSerialNumber(),
       sales: "",
       namaProduk: "",
       jumlah: 0,
@@ -151,7 +163,6 @@ const FormPenjualan: React.FC = () => {
   };
 
   const generateFakturContent = (record: ProdukEntity) => {
-    // Generate the faktur content using the record data
     return `
       <div>
         <h1>Faktur Penjualan</h1>
@@ -178,6 +189,11 @@ const FormPenjualan: React.FC = () => {
   };
 
   const columns = [
+    {
+      title: "Serial Number",
+      dataIndex: "serialNumber",
+      key: "serialNumber",
+    },
     {
       title: "Sales",
       dataIndex: "sales",
@@ -243,7 +259,7 @@ const FormPenjualan: React.FC = () => {
   ];
 
   const handleHapusPenjualan = (record: ProdukEntity) => {
-    const penjualanDiperbarui = penjualan.filter((item) => item !== record);
+    const penjualanDiperbarui = penjualan.filter((item) => item.serialNumber !== record.serialNumber);
     setPenjualan(penjualanDiperbarui);
     setIsEditModalVisible(false);
   };
@@ -410,13 +426,15 @@ const FormPenjualan: React.FC = () => {
           <Form.Item label="Pelanggan" name="pelanggan">
             <Input
               value={produkBaru.pelanggan}
-              onChange={(e) => setProdukBaru({ ...produkBaru, pelanggan: e.target.value })}
-            />
-          </Form.Item>
-        </Form>
-      </Modal>
-    </div>
-  );
-};
-
-export default FormPenjualan;
+              onChange={(e) => setProdukBaru({ ...produkBaru,
+                pelanggan: e.target.value })}
+                />
+              </Form.Item>
+            </Form>
+          </Modal>
+        </div>
+      );
+    };
+    
+    export default FormPenjualan;
+    
