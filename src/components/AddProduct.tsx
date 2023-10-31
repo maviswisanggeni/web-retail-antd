@@ -47,7 +47,7 @@ const AddProduct: React.FC<AddProductProps> = ({ visible, onClose, onSave }) => 
       message.error("Failed to create the product!");
       console.log("Failed:", errorInfo);
     }
-  };
+  }
 
   return (
     <>
@@ -59,14 +59,29 @@ const AddProduct: React.FC<AddProductProps> = ({ visible, onClose, onSave }) => 
         onCancel={onClose}
       >
         <Form form={form} layout="vertical" name="add_product_form" initialValues={{ category: 'smartphone' }}>
-          <Form.Item label="Nama Barang" name="title">
-            <Input style={{ width: '100%' }} />
+          <Form.Item label="Nama Barang" name="title" rules={[
+            {
+              required: true,
+              message: 'Please input the product name!',
+            },
+          ]}>
+            <Input autoComplete="off" allowClear />
           </Form.Item>
-          <Form.Item label="Harga Jual" name="price">
-            <InputNumber style={{ width: '100%' }} />
+          <Form.Item label="Harga Jual" name="price" rules={[
+            {
+              required: true,
+              message: 'Please input the product price!',
+            },
+          ]}>
+            <InputNumber style={{ width: '100%' }} type="number" />
           </Form.Item>
-          <Form.Item label="Stok" name="stock">
-            <InputNumber style={{ width: '100%' }} />
+          <Form.Item label="Stok" name="stock" rules={[
+            {
+              required: true,
+              message: 'Please input the product stock!',
+            },
+          ]}>
+            <InputNumber style={{ width: '100%' }} type="number" />
           </Form.Item>
         </Form>
       </Modal>

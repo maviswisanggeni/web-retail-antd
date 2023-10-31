@@ -105,14 +105,13 @@ const Products: React.FC = () => {
   const columns: ColumnsType<DataType> = [
     {
       title: "No",
-      width: 50,
+      width: 100,
       dataIndex: "key",
       key: "key",
       fixed: "left",
     },
     {
       title: "Nama Barang",
-      width: 150,
       dataIndex: "title",
       key: "title",
       filters: [
@@ -188,7 +187,6 @@ const Products: React.FC = () => {
     },
     {
       title: "Harga",
-      width: 100,
       dataIndex: "price",
       key: "price",
       sorter: (a, b) => a.price - b.price,
@@ -196,7 +194,6 @@ const Products: React.FC = () => {
     },
     {
       title: "Stok",
-      width: 100,
       dataIndex: "stock",
       key: "stock",
     },
@@ -204,7 +201,6 @@ const Products: React.FC = () => {
       title: "Action",
       key: "operation",
       fixed: "right",
-      width: 150,
       render: (record) => (
         <>
           <Space>
