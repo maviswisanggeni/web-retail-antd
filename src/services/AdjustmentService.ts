@@ -26,8 +26,8 @@ export class AdjustmentService {
         return axios.delete(AdjustmentURL, this.config);
     }
 
-        public static getAdjustmentById(id: number) {
-            const AdjustmentURL = `${this.URL}/stockopn/${id}`;
-            return axios.get(AdjustmentURL, this.config);
-        }
+    public static getAdjustmentById(id: number) {
+        const AdjustmentURL = `${this.URL}/stockopn/${id}`;
+        return axios.get(AdjustmentURL, this.config);
+    }
 }
