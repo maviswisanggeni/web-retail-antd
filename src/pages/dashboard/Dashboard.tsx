@@ -20,6 +20,7 @@ import Title from "antd/es/typography/Title";
 import Stock from "../gudang/Stock";
 import DetailAdjustment from "../../components/DetailAdjustment";
 import Supplier from "../supplier/Supplier";
+import DashboardComponent from "../../components/DashboardComponent";
 
 const { Header, Sider, Content } = Layout;
 
@@ -58,12 +59,6 @@ const items: MenuProps["items"] = [
   ]),
 ];
 
-const DashboardComponent: React.FC = () => (
-  <div style={{ textAlign: "center" }}>
-    <Title>Welcome</Title>
-  </div>
-);
-
 const Dashboard: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
   const {
@@ -89,8 +84,10 @@ const Dashboard: React.FC = () => {
             items={items}
           />
         </Sider>
-        <Layout>
-          <Header style={{ padding: 0, background: colorBgContainer }}>
+        <Layout style={{
+          background: colorBgContainer,
+        }}>
+          <Header style={{ padding: 0, background: colorBgContainer }} >
             <Button
               type="text"
               icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
@@ -107,7 +104,7 @@ const Dashboard: React.FC = () => {
               margin: "24px 16px",
               padding: 24,
               minHeight: 280,
-              background: colorBgContainer,
+              borderRadius: '10px'
             }}
           >
             <Routes>
